@@ -1,0 +1,18 @@
+sudo: false
+language: python
+matrix:
+  include:
+  - python: '3.5'
+    env: TOXENV=py35-django111-test
+install:
+- pip install tox
+script:
+- tox
+deploy:
+  provider: pypi
+  user: djangodatatrans
+  password:
+    secure: litlviIviUHc/t5mHPWETsFyoXrIUcF8P/xgl2gji4H3y3X6E6nfDsuUp13nbsZAsIqtrR1+0VGPkASACgTpVRJ1NnXdmRt0do3EbCNGembE2EWYEjF8O5Y4sj/fa9a7MprRYpnmET54kdOUzKOFcnmDNwynyJQb35LDhgAfWn/QxHGdKI16xMPD+MNdRoIrJ5piGULGuILMN9Jwg0GAcul6ffXjmuXwWB/LuclMROt8DutUgpIWk9ulX4N6PLHK23ayb+CY6a82proLKwvuwpXSo9bMqhBzxytmx2buGyEEQHFDhGZXz4R62g4Mahbgxb9WKX1aWqhjeDtp1ntuQmlpj8XZ1lGC+gSyESis9ULa8tBBog7ymg9NsbwnQjeb925upI83OzOjuKKdp8E/uswC96vBsQsenxV34D6ALWolTloCY26tUb2MBm4JhJAht34PtNEdsfR8vF7WG4/6xCZE1EbB6hJwCPIylVtJBX7TTSfZfiEUZv99OfomGNiaW/UUryYVp2lSBEeP3q41IP0JKnGBCou0cTvwKOXxlLxlE1mAZXc7CIA1mb6ClXBsb2vZKTP8gPHEieaWGyn914dKaJZKeiP7XendfwuMygug6LFOeuGXV1/1db5jjvf+nljDXlmGqwqctrR8ptOmdL9LgrPDb7hGaZ7N+ZhHOC0=
+  distribution: sdist bdist_wheel
+  on:
+    tags: true

@@ -1,0 +1,32 @@
+<html>
+
+<head>
+    <title>Datatrans - Example - {{ title }}</title>
+</head>
+
+<script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+<script src="{{ datatrans_js_url }}"></script>
+<form id="paymentForm"
+      data-merchant-id="{{ merchant_id }}"
+      data-amount="{{ amount }}"
+      data-currency="{{ currency }}"
+      data-refno="{{ refno }}"
+      data-sign="{{ sign }}"
+        {% if use_alias %}
+      data-use-alias="true"
+        {% endif %}
+
+      data-success-url="http://success.com"
+      data-error-url="http://error.com"
+      data-cancel-url="http://cancel.com"
+>
+    <button id="paymentButton">{{ title }}</button>
+</form>
+
+<script type="text/javascript">
+    $("#paymentButton").click(function () {
+        Datatrans.startPayment({'form': '#paymentForm'});
+    });
+</script>
+
+</html>

@@ -1,0 +1,20 @@
+# Python
+.env
+*.pyc
+__pycache__
+*.egg-info
+/dist/
+/build/
+.tox
+.coverage
+
+# MyPy
+.mypy_cache
+
+# Intellij idea
+.idea
+*.iml
+
+# Django
+manage.py
+
