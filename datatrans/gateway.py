@@ -1,4 +1,3 @@
-from typing import Union, Tuple
 from xml.etree.ElementTree import Element, SubElement, tostring
 
 import requests
@@ -6,6 +5,7 @@ from collections import namedtuple
 from defusedxml.ElementTree import fromstring
 from moneyed import Money
 from structlog import get_logger
+from typing import Union, Tuple
 
 from .config import datatrans_authorize_url, sign_mpo, mpo_merchant_id, web_merchant_id, sign_web
 from .models import AliasRegistration, Charge, Payment
@@ -172,33 +172,31 @@ def parse_notification_xml(xml: str) -> Union[AliasRegistration, Payment]:
         )
 
         if is_success():
-            return AliasRegistration(
-                is_success=True,
-                **register_alias_attributes,
-                **parse_common_attributes(),
-                **parse_success()
-            )
+            d = dict(is_success=True)
+            d.update(register_alias_attributes)
+            d.update(parse_common_attributes())
+            d.update(parse_success())
+            return AliasRegistration(**d)
         else:
-            return AliasRegistration(
-                is_success=False,
-                **register_alias_attributes,
-                **parse_common_attributes(),
-                **parse_error()
-            )
+            d = dict(is_success=False)
+            d.update(register_alias_attributes)
+            d.update(parse_common_attributes())
+            d.update(parse_error())
+            return AliasRegistration(**d)
     else:
         if is_success():
-            return Payment(
+            d = dict(
                 is_success=True,
-                masked_card_number=get_named_parameter('cardno').text,
-                **parse_common_attributes(),
-                **parse_success()
+                masked_card_number=get_named_parameter('cardno').text
             )
+            d.update(parse_common_attributes())
+            d.update(parse_success())
+            return Payment(**d)
         else:
-            return Payment(
-                is_success=False,
-                **parse_common_attributes(),
-                **parse_error()
-            )
+            d = dict(is_success=False)
+            d.update(parse_common_attributes())
+            d.update(parse_error())
+            return Payment(**d)
 
 
 def build_charge_request_xml(value: Money, client_ref: str, alias_registration: AliasRegistration) -> bytes:
@@ -257,9 +255,8 @@ def parse_charge_response_xml(xml: bytes) -> Charge:
         authorization_code = response.find('authorizationCode').text
         acquirer_authorization_code = response.find('acqAuthorizationCode').text
 
-        return Charge(
+        d = dict(
             is_success=True,
-            **common_attributes,
             transaction_id=transaction_id,
             masked_card_number=masked_card_number,
             credit_card_country=return_customer_country,
@@ -268,13 +265,15 @@ def parse_charge_response_xml(xml: bytes) -> Charge:
             authorization_code=authorization_code,
             acquirer_authorization_code=acquirer_authorization_code,
         )
+        d.update(common_attributes)
+        return Charge(**d)
     else:
         error = transaction.find('error')
 
         acquirer_error_code_element = error.find('acqErrorCode')
-        return Charge(
+
+        d = dict(
             is_success=False,
-            **common_attributes,
             error_code=error.find('errorCode').text,
             error_message=error.find('errorMessage').text,
             error_detail=error.find('errorDetail').text,
@@ -282,3 +281,5 @@ def parse_charge_response_xml(xml: bytes) -> Charge:
             transaction_id=error.find('uppTransactionId').text,
             credit_card_country=error.find('returnCustomerCountry').text,
         )
+        d.update(**common_attributes)
+        return Charge(**d)

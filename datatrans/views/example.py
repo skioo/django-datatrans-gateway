@@ -7,9 +7,15 @@ from moneyed import Money
 from ..config import datatrans_js_url
 from ..gateway import build_payment_parameters
 
+CLIENT_REF_FIELD_SIZE = 18
+
 
 class RegisterAliasForm(forms.Form):
-    client_ref = CharField(required=True, max_length=18, widget=TextInput(attrs={'size': 18}))
+    client_ref = CharField(
+        required=True,
+        max_length=CLIENT_REF_FIELD_SIZE,
+        widget=TextInput(attrs={'size': CLIENT_REF_FIELD_SIZE})
+    )
 
 
 def register_alias(request: HttpRequest) -> HttpResponse:
@@ -21,11 +27,11 @@ def register_alias(request: HttpRequest) -> HttpResponse:
                 client_ref=form.cleaned_data['client_ref']
             )
             context = {
-                **payment_parameters._asdict(),
                 'title': 'Register credit card alias',
                 'datatrans_js_url': datatrans_js_url,
                 'use_alias': True,
             }
+            context.update(payment_parameters._asdict())
 
             return render(request, 'datatrans/example/display-datatrans-form.html', context)
     else:
@@ -39,7 +45,11 @@ def register_alias(request: HttpRequest) -> HttpResponse:
 
 class PayForm(forms.Form):
     value = MoneyField(min_value=0, default_currency='CHF')
-    client_ref = CharField(required=True, max_length=18, widget=TextInput(attrs={'size': 18}))
+    client_ref = CharField(
+        required=True,
+        max_length=CLIENT_REF_FIELD_SIZE,
+        widget=TextInput(attrs={'size': CLIENT_REF_FIELD_SIZE})
+    )
 
 
 def pay(request: HttpRequest) -> HttpResponse:
@@ -52,10 +62,11 @@ def pay(request: HttpRequest) -> HttpResponse:
                 client_ref=form.cleaned_data['client_ref']
             )
             context = {
-                **payment_parameters._asdict(),
                 'datatrans_js_url': datatrans_js_url,
                 'title': 'Pay {}'.format(value),
             }
+            context.update(payment_parameters._asdict())
+
             return render(request, 'datatrans/example/display-datatrans-form.html', context)
     else:
         form = PayForm()

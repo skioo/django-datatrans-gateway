@@ -14,3 +14,8 @@ Signals:
 =======
 payment_done, alias_registration_done, charge_done
 
+
+
+----
+
+To work on this code: pip install -e .
