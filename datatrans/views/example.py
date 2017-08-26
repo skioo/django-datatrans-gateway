@@ -1,3 +1,10 @@
+"""
+Example views for interactive testing of registering aliases and paying with datatrans.
+
+You should restrict access if you chose to add them to your urlconf
+(for instance with the 'staff_member_required' decorator).
+"""
+
 from django.forms import CharField, TextInput, forms
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render

@@ -7,6 +7,7 @@ __pycache__
 /build/
 .tox
 .coverage
+.cache
 
 # MyPy
 .mypy_cache
@@ -14,7 +15,4 @@ __pycache__
 # Intellij idea
 .idea
 *.iml
-
-# Django
-manage.py
 
