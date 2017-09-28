@@ -14,4 +14,4 @@ class GatewayTest(TestCase):
             refno='91827364',
             sign='afdd2eef36dd6f39222ee6c3bb641c9731817508068f3e807c21adb3fe483d04',
         )
-        self.assertEqual(expected, payment_parameters)
+        assert payment_parameters == expected

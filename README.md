@@ -1,7 +1,11 @@
+django-datatrans-gateway
+========================
+
 [![Build Status](https://travis-ci.org/skioo/django-datatrans-gateway.svg?branch=master)](https://travis-ci.org/skioo/django-datatrans-gateway)
+[![PyPI version](https://badge.fury.io/py/django-datatrans-gateway.svg)](https://badge.fury.io/py/django-datatrans-gateway)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-
-An integration for the datatrans payment gateway.
+A django integration for the datatrans payment gateway.
 
 Supports:
 - Direct payment by the user
@@ -13,18 +17,46 @@ This implementation:
 - Introduces persistent models for Payment, AliasRegistration, Charge. All exchanges with datatrans are stored in the database for debuggability and auditability.
 - Due to the asynchronous nature of the datatrans interaction, sends signals whenever a notification (success or failure) is received from datatrans.
 
-----
 
-To work on this code:
+Requirements
+------------
 
-    pip install -e .
+* Python: 3.4 and over
+* Django: Tested with django 1.11
 
-To run tests:
 
-    tox
+Usage
+-----
 
-To release a version to pypi:
-- Edit \_\_version\_\_ in \_\_init\_\_.py
-- Push and wait for the build to succeed
-- Create a release in github, travis will build and deploy the new version to pypi: https://pypi.python.org/pypi/django-datatrans-gateway
+Add datatrans to your `INSTALLED_APPS`:
 
+    INSTALLED_APPS = (
+    ...
+    'datatrans.apps.DatatransConfig',
+    )
+
+
+Include `datatrans-urls` to the urlpatterns in your urls.py, for instance:
+
+    urlpatterns = [
+        url(r'^datatrans/', include('datatrans.urls')),
+    ]
+
+Configure the callback url in your upp
+
+In your settings.py, enter the configuration for your web and mpo merchants. For instance:
+
+    DATATRANS = {
+        'WEB_MERCHANT_ID': '1111111111',
+        'WEB_HMAC_KEY': 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+        'MPO_MERCHANT_ID': '2222222222',
+        'MPO_HMAC_KEY': 'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
+    }
+
+
+Troubleshooting
+---------------
+
+The first thing the code does when it receives a notification is logging a `datatrans-notification` event with structlog.
+If you don't see a payment (or a payment error) in the database, and you are sure you've properly configured the callback in the upp,
+then start by looking in the log for a `datatrans-notification`

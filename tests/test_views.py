@@ -1,6 +1,4 @@
-from unittest import TestCase
-
-from django.test import Client
+from django.test import Client, TestCase
 from django.urls import reverse
 
 
@@ -41,17 +39,17 @@ class NotifyViewTest(TestCase):
   </body>
 </uppTransactionService>
     """
-        response = Client().post(
-            reverse('datatrans_notify'),
-            content_type='text/xml', data=xml)
-        self.assertEqual(200, response.status_code)
+        response = Client().post(reverse('datatrans_notify'),
+                                 content_type='text/xml', data=xml)
+
+        assert response.status_code == 200
 
 
 class ExampleViewsTest(TestCase):
     def test_it_should_show_a_form_for_the_example_register_alias_page(self):
         response = Client().get(reverse('datatrans_example_register_alias'))
-        self.assertEqual(200, response.status_code)
+        assert response.status_code == 200
 
     def test_it_should_show_a_form_for_the_example_pay_page(self):
         response = Client().get(reverse('datatrans_example_pay'))
-        self.assertEqual(200, response.status_code)
+        assert response.status_code == 200

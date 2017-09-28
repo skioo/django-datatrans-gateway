@@ -17,12 +17,12 @@ class DatatransBase(models.Model):
     is_success = models.BooleanField()
     client_ref = models.CharField(db_index=True, max_length=18)
     merchant_id = models.CharField(db_index=True, max_length=255)
-    request_type = models.CharField(max_length=3)
-    expiry_month = models.IntegerField()
-    expiry_year = models.IntegerField()
-    expiry_date = models.DateField()
     value = MoneyField(max_digits=10, decimal_places=2, default_currency='CHF')
-    credit_card_country = models.CharField(max_length=3)
+    request_type = models.CharField(max_length=3, blank=True)
+    expiry_month = models.IntegerField(null=True, blank=True)
+    expiry_year = models.IntegerField(null=True, blank=True)
+    expiry_date = models.DateField(null=True, blank=True)  # A field in the database so we can search for expired cards
+    credit_card_country = models.CharField(max_length=3, blank=True)
 
     # If it's a success
     response_code = models.CharField(max_length=4, blank=True)
@@ -37,7 +37,8 @@ class DatatransBase(models.Model):
     acquirer_error_code = models.CharField(max_length=255, blank=True)
 
     def save(self, *args, **kwargs):
-        self.expiry_date = compute_expiry_date(two_digit_year=self.expiry_year, month=self.expiry_month)
+        if self.expiry_year is not None and self.expiry_month is not None:
+            self.expiry_date = compute_expiry_date(two_digit_year=self.expiry_year, month=self.expiry_month)
         super(DatatransBase, self).save(*args, **kwargs)
 
     class Meta:
@@ -57,7 +58,7 @@ class DatatransBase(models.Model):
 
 class Payment(DatatransBase):
     masked_card_number = models.CharField(max_length=255, blank=True)
-    payment_method = models.CharField(max_length=3)
+    payment_method = models.CharField(max_length=3, blank=True)
 
 
 class AliasRegistration(DatatransBase):

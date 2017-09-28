@@ -1,5 +1,3 @@
-from unittest import skip
-
 from django.test import TestCase
 from moneyed import Money
 
@@ -64,7 +62,7 @@ class ParseRegisterAliasTest(TestCase):
             acquirer_authorization_code='111953',
         )
         parsed = parse_notification_xml(xml)
-        assertModelEqual(self, expected, parsed)
+        assertModelEqual(expected, parsed)
 
     def test_wrong_sign2(self):
         xml = """<?xml version="1.0" encoding="UTF-8"?>
@@ -158,7 +156,7 @@ class ParseRegisterAliasTest(TestCase):
             acquirer_error_code='50',
         )
         parsed = parse_notification_xml(xml)
-        assertModelEqual(self, expected, parsed)
+        assertModelEqual(expected, parsed)
 
 
 class ParsePaymentTest(TestCase):
@@ -213,7 +211,7 @@ class ParsePaymentTest(TestCase):
             acquirer_authorization_code='094957',
         )
         parsed = parse_notification_xml(xml)
-        assertModelEqual(self, expected, parsed)
+        assertModelEqual(expected, parsed)
 
     def test_use_alias_present_but_empty(self):
         xml = """<?xml version="1.0" encoding="UTF-8"?>
@@ -266,7 +264,7 @@ class ParsePaymentTest(TestCase):
             acquirer_authorization_code='140554',
         )
         parsed = parse_notification_xml(xml)
-        assertModelEqual(self, expected, parsed)
+        assertModelEqual(expected, parsed)
 
     def test_wrong_expiry(self):
         xml = """<?xml version="1.0" encoding="UTF-8"?>
@@ -316,9 +314,8 @@ class ParsePaymentTest(TestCase):
             acquirer_error_code='50',
         )
         parsed = parse_notification_xml(xml)
-        assertModelEqual(self, expected, parsed)
+        assertModelEqual(expected, parsed)
 
-    @skip('not ready')
     def test_payment_in_unsupported_currency(self):
         xml = """<uppTransactionService version="1">
   <body merchantId="1111111111" testOnly="yes">
@@ -343,20 +340,57 @@ class ParsePaymentTest(TestCase):
 </uppTransactionService>"""
         expected = Payment(
             is_success=False,
-            transaction_id='170720154219033737',
+            transaction_id='170802095839802669',
             merchant_id='1111111111',
-            request_type='CAA',
-            expiry_month=12,
-            expiry_year=19,
-            client_ref='1234',
-            value=Money(1.0, 'CHF'),
-            payment_method='VIS',
-            credit_card_country='CHE',
-
-            error_code='1403',
-            error_message='declined',
-            error_detail='Declined',
-            acquirer_error_code='50',
+            client_ref='5',
+            value=Money(5, 'RUB'),
+            error_code='-999',
+            error_message='without error message',
+            error_detail='not available payment method',
         )
         parsed = parse_notification_xml(xml)
-        assertModelEqual(self, expected, parsed)
+        assertModelEqual(expected, parsed)
+
+    def test_pointspay(self):
+        xml = """<?xml version="1.0" encoding="UTF-8"?>
+<uppTransactionService version="1">
+  <body merchantId="1111111111" testOnly="yes">
+    <transaction refno="1234" status="success">
+      <uppTransactionId>170928152808316732</uppTransactionId>
+      <amount>300</amount>
+      <currency>CHF</currency>
+      <pmethod>PPA</pmethod>
+      <reqtype>CAA</reqtype>
+      <success>
+        <authorizationCode>924837574</authorizationCode>
+        <acqAuthorizationCode>949a42070f1a497fabbf6b0ddf20b0e4</acqAuthorizationCode>
+        <responseMessage>PPA transaction Ok</responseMessage>
+        <responseCode>01</responseCode>
+      </success>
+      <userParameters>
+        <parameter name="sign">redacted</parameter>
+        <parameter name="responseCode">01</parameter>
+        <parameter name="mode">lightbox</parameter>
+        <parameter name="sign2">68b727cce2575d6a1c1fdd34cc12cbe8204f78ea58ca3a2bea4725b0d907148c</parameter>
+        <parameter name="theme">DT2015</parameter>
+        <parameter name="uppReturnTarget">_top</parameter>
+        <parameter name="version">1.0.2</parameter>
+      </userParameters>
+    </transaction>
+  </body>
+</uppTransactionService>"""
+        expected = Payment(
+            is_success=True,
+            transaction_id='170928152808316732',
+            merchant_id='1111111111',
+            request_type='CAA',
+            client_ref='1234',
+            value=Money(3, 'CHF'),
+            payment_method='PPA',
+            authorization_code='924837574',
+            acquirer_authorization_code='949a42070f1a497fabbf6b0ddf20b0e4',
+            response_code='01',
+            response_message='PPA transaction Ok',
+        )
+        parsed = parse_notification_xml(xml)
+        assertModelEqual(expected, parsed)

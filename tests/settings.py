@@ -13,6 +13,9 @@ DATABASES = {
 
 SECRET_KEY = 'django_datatrans_tests_secret_key'
 
+# To get rid of RemovedInDjango20Warning
+MIDDLEWARE = []  # type: ignore
+
 # Use a fast hasher to speed up tests.
 PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.MD5PasswordHasher',

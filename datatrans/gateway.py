@@ -1,15 +1,15 @@
 from xml.etree.ElementTree import Element, SubElement, tostring
 
-import requests
 from collections import namedtuple
 from defusedxml.ElementTree import fromstring
 from moneyed import Money
+import requests
 from structlog import get_logger
-from typing import Union, Tuple
+from typing import Tuple, Union
 
-from .config import datatrans_authorize_url, sign_mpo, mpo_merchant_id, web_merchant_id, sign_web
+from .config import datatrans_authorize_url, mpo_merchant_id, sign_mpo, sign_web, web_merchant_id
 from .models import AliasRegistration, Charge, Payment
-from .signals import charge_done, alias_registration_done, payment_done
+from .signals import alias_registration_done, charge_done, payment_done
 
 logger = get_logger()
 
@@ -143,29 +143,51 @@ def parse_notification_xml(xml: str) -> Union[AliasRegistration, Payment]:
 
     def parse_error():
         error = transaction.find('error')
-        return dict(
+        d = dict(
             error_code=error.find('errorCode').text,
             error_message=error.find('errorMessage').text,
-            error_detail=error.find('errorDetail').text,
-            acquirer_error_code=get_named_parameter('acqErrorCode').text,
-        )
+            error_detail=error.find('errorDetail').text)
+
+        acquirer_error_code = get_named_parameter('acqErrorCode')
+        if acquirer_error_code is not None:
+            d['acquirer_error_code'] = acquirer_error_code.text
+
+        return d
 
     def parse_common_attributes():
-        return dict(
+        d = dict(
             transaction_id=transaction.find('uppTransactionId').text,
             merchant_id=body.get('merchantId'),
-            request_type=transaction.find('reqtype').text,
-            expiry_month=int(get_named_parameter('expm').text),
-            expiry_year=int(get_named_parameter('expy').text),
             client_ref=transaction.get('refno'),
-            value=parse_money(transaction),
-            payment_method=transaction.find('pmethod').text,
-            credit_card_country=get_named_parameter('returnCustomerCountry').text,
-        )
+            value=parse_money(transaction))
+
+        payment_method = transaction.find('pmethod')
+        if payment_method is not None:
+            d['payment_method'] = payment_method.text
+
+        request_type = transaction.find('reqtype')
+        if request_type is not None:
+            d['request_type'] = request_type.text
+
+        credit_card_country = get_named_parameter('returnCustomerCountry')
+        if credit_card_country is not None:
+            d['credit_card_country'] = credit_card_country.text
+
+        expiry_month = get_named_parameter('expm')
+        if expiry_month is not None:
+            d['expiry_month'] = int(expiry_month.text)
+
+        expiry_year = get_named_parameter('expy')
+        if expiry_year is not None:
+            d['expiry_year'] = int(expiry_year.text)
+
+        return d
+
+    # End of inner helper functions, we're back inside parse_notification_xml
 
     use_alias_parameter = get_named_parameter('useAlias')
     if use_alias_parameter is not None and use_alias_parameter.text == 'true':
-
+        # It's an alias registration
         register_alias_attributes = dict(
             masked_card_number=get_named_parameter('maskedCC').text,
             card_alias=get_named_parameter('aliasCC').text,
@@ -184,11 +206,12 @@ def parse_notification_xml(xml: str) -> Union[AliasRegistration, Payment]:
             d.update(parse_error())
             return AliasRegistration(**d)
     else:
+        # It's a payment or a charge
         if is_success():
-            d = dict(
-                is_success=True,
-                masked_card_number=get_named_parameter('cardno').text
-            )
+            d = dict(is_success=True)
+            cardno = get_named_parameter('cardno')
+            if cardno is not None:
+                d['masked_card_number'] = cardno.text
             d.update(parse_common_attributes())
             d.update(parse_success())
             return Payment(**d)

@@ -2,7 +2,7 @@ from django.test import TestCase
 from moneyed import Money
 
 from datatrans.gateway import build_charge_request_xml, parse_charge_response_xml
-from datatrans.models import Charge, AliasRegistration
+from datatrans.models import AliasRegistration, Charge
 from .utils import assertModelEqual
 
 
@@ -31,7 +31,7 @@ class BuildChargeTest(TestCase):
         )
         expected = """<?xml version='1.0' encoding='utf8'?>
 <authorizationService version="3"><body merchantId="2222222222"><transaction refno="abcdef"><request><amount>12300</amount><currency>CHF</currency><aliasCC>70119122433810042</aliasCC><expm>12</expm><expy>18</expy><reqtype>CAA</reqtype><sign>4c1324f4708a8b07310b47089a0041724b0155067e0ffb37ceb3b00d3a24d067</sign></request></transaction></body></authorizationService>"""  # noqa
-        self.assertEqual(expected, xml.decode())
+        assert xml.decode() == expected
 
 
 class ParseChargeTest(TestCase):
@@ -78,7 +78,7 @@ class ParseChargeTest(TestCase):
             authorization_code='749762145',
             acquirer_authorization_code='104749',
         )
-        assertModelEqual(self, expected, parse_charge_response_xml(response))
+        assertModelEqual(expected, parse_charge_response_xml(response))
 
     def test_declined(self):
         response = """<?xml version='1.0' encoding='utf8'?>
@@ -121,7 +121,7 @@ class ParseChargeTest(TestCase):
             error_detail='Declined',
             acquirer_error_code='50',
         )
-        assertModelEqual(self, expected, parse_charge_response_xml(response))
+        assertModelEqual(expected, parse_charge_response_xml(response))
 
     def test_no_acquirer_for_currency(self):
         response = """<?xml version='1.0' encoding='utf8'?>
@@ -162,4 +162,4 @@ class ParseChargeTest(TestCase):
             error_message='payment acquirer does not exist',
             error_detail='VIS/RUB',
         )
-        assertModelEqual(self, expected, parse_charge_response_xml(response))
+        assertModelEqual(expected, parse_charge_response_xml(response))
