@@ -1,6 +1,6 @@
 from django.conf.urls import url
 from django.contrib import admin
-from django.forms import forms, CharField, TextInput
+from django.forms import CharField, TextInput, forms
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
@@ -13,9 +13,8 @@ from .models import AliasRegistration, Charge, Payment
 
 
 def expiry(obj):
-    return format_html(
-        '{}/{}', obj.expiry_month, obj.expiry_year
-    )
+    if obj.expiry_month is not None and obj.expiry_year is not None:
+        return format_html('{}/{}', obj.expiry_month, obj.expiry_year)
 
 
 def value(obj):
