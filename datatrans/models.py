@@ -22,7 +22,7 @@ class DatatransBase(models.Model):
     expiry_month = models.IntegerField(null=True, blank=True)
     expiry_year = models.IntegerField(null=True, blank=True)
     expiry_date = models.DateField(null=True, blank=True)  # A field in the database so we can search for expired cards
-    credit_card_country = models.CharField(max_length=3, blank=True)
+    credit_card_country = models.CharField(db_index=True, max_length=3, blank=True)
 
     # If it's a success
     response_code = models.CharField(max_length=4, blank=True)
@@ -58,13 +58,13 @@ class DatatransBase(models.Model):
 
 class Payment(DatatransBase):
     masked_card_number = models.CharField(max_length=255, blank=True)
-    payment_method = models.CharField(max_length=3, blank=True)
+    payment_method = models.CharField(db_index=True, max_length=3, blank=True)
 
 
 class AliasRegistration(DatatransBase):
     masked_card_number = models.CharField(max_length=255)
     card_alias = models.CharField(max_length=20)
-    payment_method = models.CharField(max_length=3)
+    payment_method = models.CharField(db_index=True, max_length=3)
 
 
 class Charge(DatatransBase):

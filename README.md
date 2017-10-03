@@ -58,5 +58,6 @@ Troubleshooting
 ---------------
 
 The first thing the code does when it receives a notification is logging a `datatrans-notification` event with structlog.
+
 If you don't see a payment (or a payment error) in the database, and you are sure you've properly configured the callback in the upp,
 then start by looking in the log for a `datatrans-notification`

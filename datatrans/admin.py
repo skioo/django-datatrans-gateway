@@ -57,16 +57,16 @@ def charge_form(request, alias_registration_id):
 @admin.register(AliasRegistration)
 class AliasRegistrationAdmin(admin.ModelAdmin):
     date_hierarchy = 'created'
-    readonly_fields = ('created', 'expiry_date',)
-    list_display = (
+    readonly_fields = ['created', 'expiry_date']
+    list_display = [
         'transaction_id', 'created', 'is_success', 'client_ref', 'payment_method', 'masked_card_number', expiry,
-        'credit_card_country', 'error_code', 'action')
-    search_fields = (
+        'credit_card_country', 'error_code', 'action']
+    search_fields = [
         'transaction_id', 'created', 'expiry_date', 'payment_method', 'masked_card_number', 'expiry_month',
         'expiry_year', 'card_alias', 'credit_card_country', 'client_ref', 'error_code', 'error_message',
-        'error_detail')
-    list_filter = ('is_success',)
-    ordering = ('-created',)
+        'error_detail']
+    list_filter = ['is_success', 'payment_method', 'credit_card_country']
+    ordering = ['-created']
 
     def get_urls(self):
         urls = super(AliasRegistrationAdmin, self).get_urls()
@@ -90,28 +90,28 @@ class AliasRegistrationAdmin(admin.ModelAdmin):
 @admin.register(Charge)
 class ChargeAdmin(admin.ModelAdmin):
     date_hierarchy = 'created'
-    readonly_fields = ('created',)
-    list_display = (
+    readonly_fields = ['created']
+    list_display = [
         'transaction_id', 'created', 'is_success', 'client_ref', value, 'masked_card_number', expiry,
         'credit_card_country',
-        'card_alias', 'error_code', 'error_message')
-    search_fields = (
+        'card_alias', 'error_code', 'error_message']
+    search_fields = [
         'transaction_id', 'created', 'value', 'masked_card_number', 'expiry_month', 'expiry_year', 'card_alias',
-        'credit_card_country', 'client_ref', 'error_code', 'error_message')
-    list_filter = ('is_success',)
-    ordering = ('-created',)
+        'credit_card_country', 'client_ref', 'error_code', 'error_message']
+    list_filter = ['is_success', 'credit_card_country']
+    ordering = ['-created']
 
 
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
     date_hierarchy = 'created'
-    readonly_fields = ('created',)
-    list_display = (
+    readonly_fields = ['created']
+    list_display = [
         'transaction_id', 'created', 'is_success', 'client_ref', value, 'payment_method', 'masked_card_number', expiry,
-        'credit_card_country', 'error_code', 'error_message')
-    search_fields = (
+        'credit_card_country', 'error_code', 'error_message']
+    search_fields = [
         'transaction_id', 'created', 'payment_method', 'masked_card_number', 'value', 'expiry_month',
         'expiry_year', 'credit_card_country', 'client_ref', 'error_code', 'error_message',
-        'acquirer_error_code')
-    list_filter = ('is_success',)
-    ordering = ('-created',)
+        'acquirer_error_code']
+    list_filter = ['is_success', 'payment_method', 'credit_card_country']
+    ordering = ['-created']
