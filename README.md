@@ -3,6 +3,7 @@ django-datatrans-gateway
 
 [![Build Status](https://travis-ci.org/skioo/django-datatrans-gateway.svg?branch=master)](https://travis-ci.org/skioo/django-datatrans-gateway)
 [![PyPI version](https://badge.fury.io/py/django-datatrans-gateway.svg)](https://badge.fury.io/py/django-datatrans-gateway)
+[![Requirements Status](https://requires.io/github/skioo/django-datatrans-gateway/requirements.svg?branch=master)](https://requires.io/github/skioo/django-datatrans-gateway/requirements/?branch=master)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A django integration for the datatrans payment gateway.
@@ -22,7 +23,7 @@ Requirements
 ------------
 
 * Python: 3.4 and over
-* Django: Tested with django 1.11
+* Django: 1.10 and over
 
 
 Usage

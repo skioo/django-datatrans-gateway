@@ -6,7 +6,7 @@ import datatrans
 setup(
     name='django-datatrans-gateway',
     version=datatrans.__version__,
-    description='',
+    description='Integrate django with the datatrans payment service provider',
     long_description='',
     author='Nicholas Wolff',
     author_email='nwolff@gmail.com',
@@ -22,7 +22,7 @@ setup(
         'templates/datatrans/example/*.html',
     ]},
     install_requires=[
-        'Django>=1.7',
+        'Django>=1.8',
         'django-money',
         'requests',
         'defusedxml',
@@ -33,11 +33,14 @@ setup(
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
-        'Framework :: Django',
+        'Framework :: Django :: 1.10',
+        'Framework :: Django :: 1.11',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: BSD License',
+        'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
+        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
     ],
 )
