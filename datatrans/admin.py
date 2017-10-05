@@ -57,10 +57,10 @@ def charge_form(request, alias_registration_id):
 @admin.register(AliasRegistration)
 class AliasRegistrationAdmin(admin.ModelAdmin):
     date_hierarchy = 'created'
-    readonly_fields = ['created', 'expiry_date']
+    readonly_fields = ['created', 'expiry_date', 'charge_button']
     list_display = [
         'transaction_id', 'created', 'is_success', 'client_ref', 'payment_method', 'masked_card_number', expiry,
-        'credit_card_country', 'error_code', 'action']
+        'credit_card_country', 'error_code', 'charge_button']
     search_fields = [
         'transaction_id', 'created', 'expiry_date', 'payment_method', 'masked_card_number', 'expiry_month',
         'expiry_year', 'card_alias', 'credit_card_country', 'client_ref', 'error_code', 'error_message',
@@ -79,7 +79,7 @@ class AliasRegistrationAdmin(admin.ModelAdmin):
         ]
         return my_urls + urls
 
-    def action(self, obj):
+    def charge_button(self, obj):
         if obj.is_success:
             return format_html(
                 '<a class="button" href="{}">Charge</a>',
@@ -98,7 +98,7 @@ class ChargeAdmin(admin.ModelAdmin):
     search_fields = [
         'transaction_id', 'created', 'value', 'masked_card_number', 'expiry_month', 'expiry_year', 'card_alias',
         'credit_card_country', 'client_ref', 'error_code', 'error_message']
-    list_filter = ['is_success', 'credit_card_country']
+    list_filter = ['is_success', 'credit_card_country', ('value_currency', admin.AllValuesFieldListFilter)]
     ordering = ['-created']
 
 
@@ -113,5 +113,6 @@ class PaymentAdmin(admin.ModelAdmin):
         'transaction_id', 'created', 'payment_method', 'masked_card_number', 'value', 'expiry_month',
         'expiry_year', 'credit_card_country', 'client_ref', 'error_code', 'error_message',
         'acquirer_error_code']
-    list_filter = ['is_success', 'payment_method', 'credit_card_country']
+    list_filter = ['is_success', 'payment_method', 'credit_card_country',
+                   ('value_currency', admin.AllValuesFieldListFilter)]
     ordering = ['-created']
