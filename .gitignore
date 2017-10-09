@@ -8,9 +8,8 @@ __pycache__
 .tox
 .coverage
 .cache
-
-# MyPy
 .mypy_cache
+test.db
 
 # Intellij idea
 .idea
