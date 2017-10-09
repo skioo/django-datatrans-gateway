@@ -1,5 +1,6 @@
 import calendar
 from datetime import date
+import uuid
 
 from django.db import models
 from djmoney.models.fields import MoneyField
@@ -12,6 +13,7 @@ def compute_expiry_date(two_digit_year: int, month: int) -> date:
 
 
 class DatatransBase(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     transaction_id = models.CharField(unique=True, max_length=18)
     created = models.DateTimeField(auto_now_add=True)
     is_success = models.BooleanField()

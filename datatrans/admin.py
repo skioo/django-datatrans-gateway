@@ -72,7 +72,7 @@ class AliasRegistrationAdmin(admin.ModelAdmin):
         urls = super(AliasRegistrationAdmin, self).get_urls()
         my_urls = [
             url(
-                r'^(?P<alias_registration_id>[0-9]+)/charge/$',
+                r'^(?P<alias_registration_id>[0-9a-f-]+)/charge/$',
                 self.admin_site.admin_view(charge_form),
                 name='charge',
             ),
