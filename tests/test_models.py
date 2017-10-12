@@ -53,7 +53,7 @@ class PaymentModelTest(TestCase):
 
     def test_payment_in_unsupported_currency(self):
         """
-        This payment failure has a very few attributes.
+        This payment failure has a very few attributes, verify we are able to store it.
         """
         payment = Payment(
             is_success=False,

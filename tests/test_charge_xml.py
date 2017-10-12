@@ -1,8 +1,8 @@
 from django.test import TestCase
 from moneyed import Money
 
-from datatrans.gateway import build_charge_request_xml, parse_charge_response_xml
-from datatrans.models import AliasRegistration, Charge
+from datatrans.gateway.charge import build_charge_request_xml, parse_charge_response_xml
+from datatrans.models import AliasRegistration, Payment
 from .utils import assertModelEqual
 
 
@@ -61,7 +61,7 @@ class ParseChargeTest(TestCase):
     </transaction>
   </body>
 </authorizationService>"""
-        expected = Charge(
+        expected = Payment(
             is_success=True,
             transaction_id='170717104749732144',
             merchant_id='2222222222',
@@ -105,7 +105,7 @@ class ParseChargeTest(TestCase):
     </transaction>
   </body>
 </authorizationService>"""
-        expected = Charge(
+        expected = Payment(
             is_success=False,
             transaction_id='170718174305765364',
             merchant_id='2222222222',
@@ -147,7 +147,7 @@ class ParseChargeTest(TestCase):
     </transaction>
   </body>
 </authorizationService>"""
-        expected = Charge(
+        expected = Payment(
             is_success=False,
             transaction_id='170718193544941457',
             merchant_id='2222222222',

@@ -8,8 +8,8 @@ from django.utils.html import format_html
 from djmoney.forms import MoneyField
 from moneyed.localization import format_money
 
-from .gateway import charge
-from .models import AliasRegistration, Charge, Payment
+from .gateway.charge import charge
+from .models import AliasRegistration, Payment
 
 
 def expiry(obj):
@@ -87,30 +87,16 @@ class AliasRegistrationAdmin(admin.ModelAdmin):
             )
 
 
-@admin.register(Charge)
-class ChargeAdmin(admin.ModelAdmin):
-    date_hierarchy = 'created'
-    readonly_fields = ['created']
-    list_display = [
-        'transaction_id', 'created', 'is_success', 'client_ref', value, 'masked_card_number', expiry,
-        'credit_card_country',
-        'card_alias', 'error_code', 'error_message']
-    search_fields = [
-        'transaction_id', 'created', 'value', 'masked_card_number', 'expiry_month', 'expiry_year', 'card_alias',
-        'credit_card_country', 'client_ref', 'error_code', 'error_message']
-    list_filter = ['is_success', 'credit_card_country', ('value_currency', admin.AllValuesFieldListFilter)]
-    ordering = ['-created']
-
-
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
     date_hierarchy = 'created'
     readonly_fields = ['created']
     list_display = [
-        'transaction_id', 'created', 'is_success', 'client_ref', value, 'payment_method', 'masked_card_number', expiry,
+        'transaction_id', 'created', 'is_success', 'client_ref', value, 'payment_method', 'card_alias',
+        'masked_card_number', expiry,
         'credit_card_country', 'error_code', 'error_message']
     search_fields = [
-        'transaction_id', 'created', 'payment_method', 'masked_card_number', 'value', 'expiry_month',
+        'transaction_id', 'created', 'payment_method', 'card_alias', 'masked_card_number', 'value', 'expiry_month',
         'expiry_year', 'credit_card_country', 'client_ref', 'error_code', 'error_message',
         'acquirer_error_code']
     list_filter = ['is_success', 'payment_method', 'credit_card_country',

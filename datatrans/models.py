@@ -5,6 +5,10 @@ import uuid
 from django.db import models
 from djmoney.models.fields import MoneyField
 
+from .signals import alias_registration_done, payment_done
+
+CLIENT_REF_FIELD_SIZE = 18
+
 
 def compute_expiry_date(two_digit_year: int, month: int) -> date:
     year = 2000 + two_digit_year
@@ -12,19 +16,20 @@ def compute_expiry_date(two_digit_year: int, month: int) -> date:
     return date(year=year, month=month, day=last_day_of_month)
 
 
-class DatatransBase(models.Model):
+class TransactionBase(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    transaction_id = models.CharField(unique=True, max_length=18)
     created = models.DateTimeField(auto_now_add=True)
-    is_success = models.BooleanField()
-    client_ref = models.CharField(db_index=True, max_length=18)
     merchant_id = models.CharField(db_index=True, max_length=255)
+    transaction_id = models.CharField(unique=True, max_length=18)
+    client_ref = models.CharField(db_index=True, max_length=18)
     value = MoneyField(max_digits=10, decimal_places=2, default_currency='CHF')
     request_type = models.CharField(max_length=3, blank=True)
     expiry_month = models.IntegerField(null=True, blank=True)
     expiry_year = models.IntegerField(null=True, blank=True)
     expiry_date = models.DateField(null=True, blank=True)  # A field in the database so we can search for expired cards
     credit_card_country = models.CharField(db_index=True, max_length=3, blank=True)
+
+    is_success = models.BooleanField()
 
     # If it's a success
     response_code = models.CharField(max_length=4, blank=True)
@@ -41,7 +46,10 @@ class DatatransBase(models.Model):
     def save(self, *args, **kwargs):
         if self.expiry_year is not None and self.expiry_month is not None:
             self.expiry_date = compute_expiry_date(two_digit_year=self.expiry_year, month=self.expiry_month)
-        super(DatatransBase, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
+
+    def _send_signal(self, signal):
+        signal.send(sender=None, instance=self, is_success=self.is_success, client_ref=self.client_ref)
 
     class Meta:
         abstract = True
@@ -58,17 +66,19 @@ class DatatransBase(models.Model):
         return '<{}.{} object at {}: {}>'.format(c.__module__, c.__name__, hex(id(self)), vars(self))
 
 
-class Payment(DatatransBase):
+class AliasRegistration(TransactionBase):
+    card_alias = models.CharField(db_index=True, max_length=20)
+    masked_card_number = models.CharField(max_length=255)
+    payment_method = models.CharField(db_index=True, max_length=3)
+
+    def send_signal(self):
+        self._send_signal(alias_registration_done)
+
+
+class Payment(TransactionBase):
+    card_alias = models.CharField(db_index=True, max_length=20, blank=True)
     masked_card_number = models.CharField(max_length=255, blank=True)
     payment_method = models.CharField(db_index=True, max_length=3, blank=True)
 
-
-class AliasRegistration(DatatransBase):
-    masked_card_number = models.CharField(max_length=255)
-    card_alias = models.CharField(max_length=20)
-    payment_method = models.CharField(db_index=True, max_length=3)
-
-
-class Charge(DatatransBase):
-    masked_card_number = models.CharField(max_length=255, blank=True)
-    card_alias = models.CharField(max_length=20)
+    def send_signal(self):
+        self._send_signal(payment_done)

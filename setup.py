@@ -14,8 +14,9 @@ setup(
     download_url='https://pypi.python.org/pypi/django-datatrans-gateway',
     packages=[
         'datatrans',
-        'datatrans.migrations',
+        'datatrans.gateway',
         'datatrans.views',
+        'datatrans.migrations',
     ],
     package_data={'datatrans': [
         'templates/admin/datatrans/*.html',

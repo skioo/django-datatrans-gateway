@@ -4,9 +4,8 @@ from unittest import mock
 from django.test import TestCase
 from moneyed import Money
 
-from datatrans.gateway import process_event
-from datatrans.models import Payment, AliasRegistration, Charge
-from datatrans.signals import payment_done, alias_registration_done, charge_done
+from datatrans.models import AliasRegistration, Payment
+from datatrans.signals import alias_registration_done, payment_done
 
 
 class EventProcessingTest(TestCase):
@@ -29,8 +28,7 @@ class EventProcessingTest(TestCase):
             acquirer_error_code='50',
         )
         with catch_signal(payment_done) as signal_handler:
-            process_event(payment_error)
-            assert Payment.objects.get(transaction_id='170720154219033737')
+            payment_error.send_signal()
             signal_handler.assert_called_once_with(
                 sender=None,
                 signal=payment_done,
@@ -39,8 +37,8 @@ class EventProcessingTest(TestCase):
                 client_ref=payment_error.client_ref,
             )
 
-    def test_charge_success(self):
-        charge = Charge(
+    def test_payment_success(self):
+        payment = Payment(
             is_success=True,
             transaction_id='170717104749732144',
             merchant_id='2222222222',
@@ -58,15 +56,14 @@ class EventProcessingTest(TestCase):
             authorization_code='749762145',
             acquirer_authorization_code='104749',
         )
-        with catch_signal(charge_done) as signal_handler:
-            process_event(charge)
-            assert Charge.objects.get(transaction_id='170717104749732144')
+        with catch_signal(payment_done) as signal_handler:
+            payment.send_signal()
             signal_handler.assert_called_once_with(
                 sender=None,
-                instance=charge,
-                signal=charge_done,
+                instance=payment,
+                signal=payment_done,
                 is_success=True,
-                client_ref=charge.client_ref,
+                client_ref=payment.client_ref,
             )
 
     def test_register_alias_success(self):
@@ -90,8 +87,7 @@ class EventProcessingTest(TestCase):
             error_detail='Declined',
         )
         with catch_signal(alias_registration_done) as signal_handler:
-            process_event(alias_registration)
-            assert AliasRegistration.objects.get(transaction_id='170710155947695609')
+            alias_registration.send_signal()
             signal_handler.assert_called_once_with(
                 sender=None,
                 signal=alias_registration_done,

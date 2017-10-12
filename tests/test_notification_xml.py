@@ -1,7 +1,7 @@
 from django.test import TestCase
 from moneyed import Money
 
-from datatrans.gateway import parse_notification_xml
+from datatrans.gateway.notification import parse_notification_xml
 from datatrans.models import AliasRegistration, Payment
 from .utils import assertModelEqual
 

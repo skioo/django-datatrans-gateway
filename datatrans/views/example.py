@@ -12,9 +12,8 @@ from djmoney.forms import MoneyField
 from moneyed import Money
 
 from ..config import datatrans_js_url
-from ..gateway import build_payment_parameters
-
-CLIENT_REF_FIELD_SIZE = 18
+from ..gateway.direct_payment import build_payment_parameters
+from ..models import CLIENT_REF_FIELD_SIZE
 
 
 class RegisterAliasForm(forms.Form):

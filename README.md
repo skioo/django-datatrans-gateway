@@ -4,7 +4,7 @@ django-datatrans-gateway
 [![Build Status](https://travis-ci.org/skioo/django-datatrans-gateway.svg?branch=master)](https://travis-ci.org/skioo/django-datatrans-gateway)
 [![PyPI version](https://badge.fury.io/py/django-datatrans-gateway.svg)](https://badge.fury.io/py/django-datatrans-gateway)
 [![Requirements Status](https://requires.io/github/skioo/django-datatrans-gateway/requirements.svg?branch=master)](https://requires.io/github/skioo/django-datatrans-gateway/requirements/?branch=master)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 A django integration for the datatrans payment gateway.
 
@@ -15,7 +15,7 @@ Supports:
 
 This implementation:
 - Handles the exchanges with datatrans, including the signing of requests and the verification of the signature of notifications.
-- Introduces persistent models for Payment, AliasRegistration, Charge. All exchanges with datatrans are stored in the database for debuggability and auditability.
+- Introduces persistent models for AliasRegistration and Payment. All exchanges with datatrans are stored in the database for debuggability and auditability.
 - Due to the asynchronous nature of the datatrans interaction, sends signals whenever a notification (success or failure) is received from datatrans.
 
 

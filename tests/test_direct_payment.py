@@ -1,10 +1,10 @@
 from django.test import TestCase
 from moneyed import Money
 
-from datatrans.gateway import PaymentParameters, build_payment_parameters
+from datatrans.gateway.direct_payment import PaymentParameters, build_payment_parameters
 
 
-class GatewayTest(TestCase):
+class DirectPaymentTest(TestCase):
     def test_it_should_generate_payment_parameters(self):
         payment_parameters = build_payment_parameters(value=Money(8.50, 'CHF'), client_ref='91827364')
         expected = PaymentParameters(

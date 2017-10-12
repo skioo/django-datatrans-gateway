@@ -1,9 +1,9 @@
-import structlog
-from django.http import HttpResponse, HttpRequest
+from django.http import HttpRequest, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+import structlog
 
-from ..gateway import handle_notification
+from ..gateway.notification import handle_notification
 
 logger = structlog.get_logger()
 
