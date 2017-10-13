@@ -1,7 +1,7 @@
 from django.test import TestCase
 from moneyed import Money
 
-from datatrans.gateway.direct_payment import PaymentParameters, build_payment_parameters
+from datatrans.gateway import PaymentParameters, build_payment_parameters
 
 
 class DirectPaymentTest(TestCase):

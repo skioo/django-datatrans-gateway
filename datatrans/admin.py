@@ -8,7 +8,7 @@ from django.utils.html import format_html
 from djmoney.forms import MoneyField
 from moneyed.localization import format_money
 
-from .gateway.charge import charge
+from .gateway import charge
 from .models import AliasRegistration, Payment
 
 

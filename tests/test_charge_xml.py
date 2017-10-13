@@ -1,7 +1,7 @@
 from django.test import TestCase
 from moneyed import Money
 
-from datatrans.gateway.charge import build_charge_request_xml, parse_charge_response_xml
+from datatrans.gateway.charging import build_charge_request_xml, parse_charge_response_xml
 from datatrans.models import AliasRegistration, Payment
 from .utils import assertModelEqual
 
