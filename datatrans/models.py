@@ -74,6 +74,9 @@ class AliasRegistration(TransactionBase):
     def send_signal(self):
         self._send_signal(alias_registration_done)
 
+    def __str__(self):
+        return 'Alias: {} {}'.format(self.payment_method, self.masked_card_number)
+
 
 class Payment(TransactionBase):
     card_alias = models.CharField(db_index=True, max_length=20, blank=True)
