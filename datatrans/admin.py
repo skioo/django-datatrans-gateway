@@ -35,9 +35,9 @@ def charge_form(request, alias_registration_id):
                 client_ref=form.cleaned_data['client_ref'],
                 alias_registration_id=alias_registration_id,
             )
-            # A bit lazy, we just take the user to the edit page of the charge or error.
-            charge_url = reverse('admin:datatrans_charge_change', args=(result.id,))
-            return HttpResponseRedirect(charge_url)
+            # A bit lazy, we just take the user to the edit page of the payment.
+            payment_detail_url = reverse('admin:datatrans_payment_change', args=(result.id,))
+            return HttpResponseRedirect(payment_detail_url)
     else:
         form = ChargeForm()
 
