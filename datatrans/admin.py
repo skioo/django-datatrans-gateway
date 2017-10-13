@@ -59,12 +59,13 @@ class AliasRegistrationAdmin(admin.ModelAdmin):
     date_hierarchy = 'created'
     readonly_fields = ['created', 'expiry_date', 'charge_button']
     list_display = [
-        'transaction_id', 'created', 'is_success', 'client_ref', 'payment_method', 'masked_card_number', expiry,
+        'transaction_id', 'created', 'is_success', 'client_ref', value, 'payment_method', 'card_alias',
+        'masked_card_number', expiry,
         'credit_card_country', 'error_code', 'charge_button']
     search_fields = [
-        'transaction_id', 'created', 'expiry_date', 'payment_method', 'masked_card_number', 'expiry_month',
-        'expiry_year', 'card_alias', 'credit_card_country', 'client_ref', 'error_code', 'error_message',
-        'error_detail']
+        'transaction_id', 'created', 'expiry_date', 'payment_method', 'card_alias', 'masked_card_number',
+        'expiry_month', 'expiry_year', 'credit_card_country', 'client_ref', 'authorization_code',
+        'error_code', 'error_message', 'error_detail']
     list_filter = ['is_success', 'payment_method', 'credit_card_country']
     ordering = ['-created']
 
@@ -96,9 +97,9 @@ class PaymentAdmin(admin.ModelAdmin):
         'masked_card_number', expiry,
         'credit_card_country', 'error_code', 'error_message']
     search_fields = [
-        'transaction_id', 'created', 'payment_method', 'card_alias', 'masked_card_number', 'value', 'expiry_month',
-        'expiry_year', 'credit_card_country', 'client_ref', 'error_code', 'error_message',
-        'acquirer_error_code']
+        'transaction_id', 'created', 'expiry_date', 'payment_method', 'card_alias', 'masked_card_number', 'value',
+        'expiry_month', 'expiry_year', 'credit_card_country', 'client_ref', 'authorization_code',
+        'error_code', 'error_message', 'error_detail']
     list_filter = ['is_success', 'payment_method', 'credit_card_country',
                    ('value_currency', admin.AllValuesFieldListFilter)]
     ordering = ['-created']

@@ -39,11 +39,11 @@ def register_alias(request: HttpRequest) -> HttpResponse:
             }
             context.update(payment_parameters._asdict())
 
-            return render(request, 'datatrans/example/display-datatrans-form.html', context)
+            return render(request, 'datatrans/example/datatrans_form.html', context)
     else:
         form = RegisterAliasForm()
 
-    return render(request, 'datatrans/example/display-form.html', {
+    return render(request, 'datatrans/example/form.html', {
         'title': 'Register credit card alias',
         'form': form
     })
@@ -73,11 +73,11 @@ def pay(request: HttpRequest) -> HttpResponse:
             }
             context.update(payment_parameters._asdict())
 
-            return render(request, 'datatrans/example/display-datatrans-form.html', context)
+            return render(request, 'datatrans/example/datatrans_form.html', context)
     else:
         form = PayForm()
 
-    return render(request, 'datatrans/example/display-form.html', {
+    return render(request, 'datatrans/example/form.html', {
         'title': 'Payment',
         'form': form
     })
