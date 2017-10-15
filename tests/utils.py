@@ -1,9 +1,16 @@
-from typing import Any, Sequence
+from typing import Any
 
-
-def _dict_without_excluded(o: Any, excluded_keys: Sequence[str] = ['id', '_state']):
-    return {k: v for k, v in vars(o).items() if k not in excluded_keys}
+EXCLUDED = ['id', '_state']
 
 
 def assertModelEqual(o1: Any, o2: Any):
-    assert _dict_without_excluded(o1) == _dict_without_excluded(o2)
+    """
+    asserting o1 == o2 yields confusing error messages, where it is impossible to
+    know exactly which attribute is not-equal. Instead we iterate on attributes and compare
+    one-by-one.
+    """
+    for k in vars(o1).keys():
+        if k not in EXCLUDED:
+            v2 = getattr(o2, k)
+            v1 = getattr(o1, k)
+            assert v1 == v2, "o['{}']: {} != {}".format(k, v1, v2)

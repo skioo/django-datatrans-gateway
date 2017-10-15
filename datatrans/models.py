@@ -5,7 +5,7 @@ import uuid
 from django.db import models
 from djmoney.models.fields import MoneyField
 
-from .signals import alias_registration_done, payment_done
+from .signals import alias_registration_done, payment_done, refund_done
 
 CLIENT_REF_FIELD_SIZE = 18
 
@@ -20,7 +20,6 @@ class TransactionBase(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     created = models.DateTimeField(auto_now_add=True)
     merchant_id = models.CharField(db_index=True, max_length=255)
-    transaction_id = models.CharField(unique=True, max_length=18)
     client_ref = models.CharField(db_index=True, max_length=18)
     value = MoneyField(max_digits=10, decimal_places=2, default_currency='CHF')
     request_type = models.CharField(max_length=3, blank=True)
@@ -67,6 +66,7 @@ class TransactionBase(models.Model):
 
 
 class AliasRegistration(TransactionBase):
+    transaction_id = models.CharField(unique=True, max_length=18)
     card_alias = models.CharField(db_index=True, max_length=20)
     masked_card_number = models.CharField(max_length=255)
     payment_method = models.CharField(db_index=True, max_length=3)
@@ -79,9 +79,18 @@ class AliasRegistration(TransactionBase):
 
 
 class Payment(TransactionBase):
+    transaction_id = models.CharField(unique=True, max_length=18)
     card_alias = models.CharField(db_index=True, max_length=20, blank=True)
     masked_card_number = models.CharField(max_length=255, blank=True)
     payment_method = models.CharField(db_index=True, max_length=3, blank=True)
 
     def send_signal(self):
         self._send_signal(payment_done)
+
+
+class Refund(TransactionBase):
+    transaction_id = models.CharField(unique=True, max_length=18, blank=True, null=True)
+    payment_transaction_id = models.CharField(db_index=True, max_length=18)
+
+    def send_signal(self):
+        self._send_signal(refund_done)

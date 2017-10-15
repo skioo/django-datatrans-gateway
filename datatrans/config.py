@@ -1,9 +1,8 @@
-from typing import Sequence, Any
-
+from django.conf import settings
 import hashlib
 import hmac
 import os
-from django.conf import settings
+from typing import Any, Sequence
 
 web_merchant_id = settings.DATATRANS['WEB_MERCHANT_ID']
 _web_hmac_key = bytearray.fromhex(settings.DATATRANS['WEB_HMAC_KEY'])
@@ -17,6 +16,7 @@ else:
 
 datatrans_js_url = os.path.join(_base_url, 'upp/payment/js/datatrans-1.0.2.js')
 datatrans_authorize_url = os.path.join(_base_url, 'upp/jsp/XML_authorize.jsp')
+datatrans_processor_url = os.path.join(_base_url, 'upp/jsp/XML_processor.jsp')
 
 
 def sign_web(*values: Any) -> str:

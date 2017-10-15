@@ -6,7 +6,7 @@ from datatrans.models import AliasRegistration, Payment
 from .utils import assertModelEqual
 
 
-class BuildChargeTest(TestCase):
+class BuildChargeRequestTest(TestCase):
     def test_build_request(self):
         xml = build_charge_request_xml(
             value=Money(123, "CHF"),
@@ -34,7 +34,7 @@ class BuildChargeTest(TestCase):
         assert xml.decode() == expected
 
 
-class ParseChargeTest(TestCase):
+class ParseChargeResponseTest(TestCase):
     def test_success(self):
         response = """<?xml version='1.0' encoding='utf8'?>
 <authorizationService version='3'>

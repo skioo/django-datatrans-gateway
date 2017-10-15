@@ -6,51 +6,58 @@ import requests
 from structlog import get_logger
 
 from .money_xml_helpers import parse_money, value_to_amount_and_currency
-from ..config import datatrans_authorize_url, mpo_merchant_id, sign_mpo
-from ..models import AliasRegistration, Payment
+from ..config import datatrans_processor_url, sign_web, web_merchant_id
+from ..models import Payment, Refund
 
 logger = get_logger()
 
 
-def charge(value: Money, client_ref: str, alias_registration_id: str) -> Payment:
+def refund(value: Money, payment_id: str) -> Refund:
     """
-    Charges money using datatrans, given a previously registered card alias.
+    Refunds (partially or completely) a previously authorized and settled transaction.
 
-    :param value: The amount and currency we want to charge
-    :param client_ref: A unique reference for this charge
-    :param alias_registration:
-    :return: a Payment (either successful or not)
+    Returns a refund (either successful or not).
     """
     if value.amount <= 0:
-        raise ValueError('Charge takes a strictly positive value')
+        raise ValueError('Refund takes a strictly positive value')
+    payment = Payment.objects.get(pk=payment_id)
+    if not payment.is_success:
+        raise ValueError('Only successful payments can be refunded')
+    if payment.value.currency != value.currency:
+        raise ValueError('Refund currency must be identical to original payment currency')
+    if value.amount > payment.value.amount:
+        raise ValueError('Refund value exceeds original payment value')
 
-    alias_registration = AliasRegistration.objects.get(pk=alias_registration_id)
+    logger.info('refunding-payment', value=str(value),
+                payment=dict(id=payment_id, value=str(payment.value), transaction_id=payment.transaction_id,
+                             masked_card_number=payment.masked_card_number))
 
-    logger.info('charging-credit-card', value=value, client_ref=client_ref,
-                alias_registration=alias_registration)
+    client_ref = '{}-r'.format(payment.client_ref)
 
-    request_xml = build_charge_request_xml(value, client_ref, alias_registration)
+    request_xml = build_refund_request_xml(value=value,
+                                           client_ref=client_ref,
+                                           original_transaction_id=payment.transaction_id)
 
     response = requests.post(
-        url=datatrans_authorize_url,
+        url=datatrans_processor_url,
         headers={'Content-Type': 'application/xml'},
         data=request_xml)
 
-    logger.debug('processing-charge-response', response=response.content)
+    logger.debug('processing-refund-response', response=response.content)
 
-    charge_response = parse_charge_response_xml(response.content)
-    charge_response.save()
-    charge_response.send_signal()
+    refund_response = parse_refund_response_xml(response.content)
+    refund_response.save()
+    refund_response.send_signal()
 
-    return charge_response
+    return refund_response
 
 
-def build_charge_request_xml(value: Money, client_ref: str, alias_registration: AliasRegistration) -> bytes:
-    merchant_id = mpo_merchant_id
+def build_refund_request_xml(value: Money, client_ref: str, original_transaction_id: str) -> bytes:
+    merchant_id = web_merchant_id
     client_ref = client_ref
 
-    root = Element('authorizationService')
-    root.set('version', '3')
+    root = Element('paymentService')
+    root.set('version', '1')
 
     body = SubElement(root, 'body')
     body.set('merchantId', merchant_id)
@@ -63,16 +70,14 @@ def build_charge_request_xml(value: Money, client_ref: str, alias_registration: 
     amount, currency = value_to_amount_and_currency(value)
     SubElement(request, 'amount').text = str(amount)
     SubElement(request, 'currency').text = currency
-    SubElement(request, 'aliasCC').text = alias_registration.card_alias
-    SubElement(request, 'expm').text = str(alias_registration.expiry_month)
-    SubElement(request, 'expy').text = str(alias_registration.expiry_year)
-    SubElement(request, 'reqtype').text = 'CAA'
-    SubElement(request, 'sign').text = sign_mpo(merchant_id, amount, currency, client_ref)
+    SubElement(request, 'uppTransactionId').text = original_transaction_id
+    SubElement(request, 'transtype').text = '06'
+    SubElement(request, 'sign').text = sign_web(merchant_id, amount, currency, client_ref)
 
     return tostring(root, encoding='utf8')
 
 
-def parse_charge_response_xml(xml: bytes) -> Payment:
+def parse_refund_response_xml(xml: bytes) -> Refund:
     body = fromstring(xml).find('body')
     status = body.get('status')
     transaction = body.find('transaction')
@@ -81,21 +86,16 @@ def parse_charge_response_xml(xml: bytes) -> Payment:
 
     common_attributes = dict(
         merchant_id=body.get('merchantId'),
-        card_alias=request.find('aliasCC').text,
-        expiry_month=int(request.find('expm').text),
-        expiry_year=int(request.find('expy').text),
         request_type=request.find('reqtype').text,
         client_ref=transaction.get('refno'),
-        value=parse_money(request)
+        value=parse_money(request),
+        payment_transaction_id=request.find('uppTransactionId').text,
     )
 
     if status == 'accepted' and trx_status == 'response':
         response = transaction.find('response')
 
         transaction_id = response.find('uppTransactionId').text
-        masked_card_number = response.find('maskedCC').text
-        return_customer_country = response.find('returnCustomerCountry').text
-
         response_code = response.find('responseCode').text
         response_message = response.find('responseMessage').text
         authorization_code = response.find('authorizationCode').text
@@ -104,15 +104,13 @@ def parse_charge_response_xml(xml: bytes) -> Payment:
         d = dict(
             is_success=True,
             transaction_id=transaction_id,
-            masked_card_number=masked_card_number,
-            credit_card_country=return_customer_country,
             response_code=response_code,
             response_message=response_message,
             authorization_code=authorization_code,
             acquirer_authorization_code=acquirer_authorization_code,
         )
         d.update(common_attributes)
-        return Payment(**d)
+        return Refund(**d)
     else:
         error = transaction.find('error')
 
@@ -124,8 +122,6 @@ def parse_charge_response_xml(xml: bytes) -> Payment:
             error_message=error.find('errorMessage').text,
             error_detail=error.find('errorDetail').text,
             acquirer_error_code=acquirer_error_code_element.text if acquirer_error_code_element is not None else '',
-            transaction_id=error.find('uppTransactionId').text,
-            credit_card_country=error.find('returnCustomerCountry').text,
         )
         d.update(**common_attributes)
-        return Payment(**d)
+        return Refund(**d)

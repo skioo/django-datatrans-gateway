@@ -3,12 +3,12 @@ from datetime import date
 from django.test import TestCase
 from moneyed import Money
 
-from datatrans.models import AliasRegistration, Payment
+from datatrans.models import AliasRegistration, Payment, Refund
 
 
 class AliasRegistrationModelTest(TestCase):
     def test_expiry_date(self):
-        aliasRegistration = AliasRegistration(
+        alias_registration = AliasRegistration(
             is_success=True,
             transaction_id='170707111922838874',
             merchant_id='1111111111',
@@ -26,8 +26,9 @@ class AliasRegistrationModelTest(TestCase):
             response_code='01',
             response_message='check successful',
         )
-        aliasRegistration.save()
-        assert aliasRegistration.expiry_date == date(2018, 12, 31)
+        alias_registration.full_clean()
+        alias_registration.save()
+        assert alias_registration.expiry_date == date(2018, 12, 31)
 
 
 class PaymentModelTest(TestCase):
@@ -49,6 +50,7 @@ class PaymentModelTest(TestCase):
             response_code='01',
             response_message='PPA transaction OK',
         )
+        payment.full_clean()
         payment.save()
 
     def test_payment_in_unsupported_currency(self):
@@ -66,4 +68,73 @@ class PaymentModelTest(TestCase):
             error_message='without error message',
             error_detail='not available payment method',
         )
+        payment.full_clean()
         payment.save()
+
+
+class RefundModelTest(TestCase):
+    def test_save_successful_refund(self):
+        refund = Refund(
+            is_success=True,
+            transaction_id='171015120225118036',
+            merchant_id='1111111111',
+            request_type='COA',
+            payment_transaction_id='170803184046388845',
+            client_ref='1234-r',
+            value=Money(1, 'CHF'),
+            response_code='01',
+            response_message='credit succeeded',
+            authorization_code='225128037',
+            acquirer_authorization_code='120225',
+        )
+        refund.full_clean()
+        refund.save()
+
+    def test_save_errored_refund(self):
+        """
+        An errored refund doesn't have a transaction id, make sure we can store it anyways.
+        """
+        refund = Refund(
+            is_success=False,
+            merchant_id='1111111111',
+            request_type='COA',
+            payment_transaction_id='170803184046388845',
+            client_ref='1234-r',
+            value=Money(1, 'CHF'),
+            error_code='2000',
+            error_message='access denied',
+            error_detail='incorrect merchantId',
+        )
+        refund.full_clean()
+        refund.save()
+
+    def test_save_many_errored_refund(self):
+        """
+        Transaction id is unique and can be empty. Make sure that more than one empty
+        transaction id can co-exist in the database.
+        """
+        refund1 = Refund(
+            is_success=False,
+            merchant_id='1111111111',
+            request_type='COA',
+            payment_transaction_id='170803184046388845',
+            client_ref='1234-r',
+            value=Money(1, 'CHF'),
+            error_code='2000',
+            error_message='access denied',
+            error_detail='incorrect merchantId',
+        )
+        refund1.save()
+
+        refund2 = Refund(
+            is_success=False,
+            merchant_id='1111111111',
+            request_type='COA',
+            payment_transaction_id='170803184046388845',
+            client_ref='5678-r',
+            value=Money(2, 'CHF'),
+            error_code='2000',
+            error_message='access denied',
+            error_detail='incorrect merchantId',
+        )
+        refund2.save()

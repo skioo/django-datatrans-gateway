@@ -4,8 +4,8 @@ from unittest import mock
 from django.test import TestCase
 from moneyed import Money
 
-from datatrans.models import AliasRegistration, Payment
-from datatrans.signals import alias_registration_done, payment_done
+from datatrans.models import AliasRegistration, Payment, Refund
+from datatrans.signals import alias_registration_done, payment_done, refund_done
 
 
 class EventProcessingTest(TestCase):
@@ -94,6 +94,31 @@ class EventProcessingTest(TestCase):
                 instance=alias_registration,
                 is_success=True,
                 client_ref=alias_registration.client_ref,
+            )
+
+    def test_refund_success(self):
+        refund = Refund(
+            is_success=True,
+            transaction_id='171015120225118036',
+            merchant_id='1111111111',
+            request_type='COA',
+            payment_transaction_id='170803184046388845',
+            client_ref='r-1234',
+            value=Money(1, 'CHF'),
+            response_code='01',
+            response_message='credit succeeded',
+            authorization_code='225128037',
+            acquirer_authorization_code='120225',
+        )
+
+        with catch_signal(refund_done) as signal_handler:
+            refund.send_signal()
+            signal_handler.assert_called_once_with(
+                sender=None,
+                signal=refund_done,
+                instance=refund,
+                is_success=True,
+                client_ref=refund.client_ref,
             )
 
 

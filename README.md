@@ -11,12 +11,14 @@ A django integration for the datatrans payment gateway.
 Supports:
 - Direct payment by the user
 - Registration of a credit card alias by the user, followed by one or more charges (without the user being present).
+- Refund (total or partial) of a previous successful charge.
 
 
 This implementation:
 - Handles the exchanges with datatrans, including the signing of requests and the verification of the signature of notifications.
-- Introduces persistent models for AliasRegistration and Payment. All exchanges with datatrans are stored in the database for debuggability and auditability.
-- Due to the asynchronous nature of the datatrans interaction, sends signals whenever a notification (success or failure) is received from datatrans.
+- Introduces persistent models for AliasRegistration, Payment, and Refund. These models record all exchanges with datatrans.
+- Sends signals whenever an AliasRegistration, Payment, or Refund is done. The signal is sent even if the operation failed, 
+the receiver should check the `is_success` flag received with the signal.
 
 
 Requirements
@@ -32,8 +34,8 @@ Usage
 Add datatrans to your `INSTALLED_APPS`:
 
     INSTALLED_APPS = (
-    ...
-    'datatrans.apps.DatatransConfig',
+        ...
+        'datatrans.apps.DatatransConfig',
     )
 
 
