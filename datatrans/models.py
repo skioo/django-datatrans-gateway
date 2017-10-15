@@ -48,7 +48,7 @@ class TransactionBase(models.Model):
         super().save(*args, **kwargs)
 
     def _send_signal(self, signal):
-        signal.send(sender=None, instance=self, is_success=self.is_success, client_ref=self.client_ref)
+        signal.send(sender=None, instance=self, is_success=self.is_success)
 
     class Meta:
         abstract = True

@@ -32,8 +32,8 @@ def charge_form(request, alias_registration_id):
         if form.is_valid():
             result = charge(
                 value=form.cleaned_data['value'],
-                client_ref=form.cleaned_data['client_ref'],
                 alias_registration_id=alias_registration_id,
+                client_ref=form.cleaned_data['client_ref'],
             )
             # As confirmation we just take the user to the edit page of the payment.
             payment_detail_url = reverse('admin:datatrans_payment_change', args=(result.id,))

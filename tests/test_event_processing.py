@@ -34,7 +34,6 @@ class EventProcessingTest(TestCase):
                 signal=payment_done,
                 instance=payment_error,
                 is_success=False,
-                client_ref=payment_error.client_ref,
             )
 
     def test_payment_success(self):
@@ -63,7 +62,6 @@ class EventProcessingTest(TestCase):
                 instance=payment,
                 signal=payment_done,
                 is_success=True,
-                client_ref=payment.client_ref,
             )
 
     def test_register_alias_success(self):
@@ -93,7 +91,6 @@ class EventProcessingTest(TestCase):
                 signal=alias_registration_done,
                 instance=alias_registration,
                 is_success=True,
-                client_ref=alias_registration.client_ref,
             )
 
     def test_refund_success(self):
@@ -118,7 +115,6 @@ class EventProcessingTest(TestCase):
                 signal=refund_done,
                 instance=refund,
                 is_success=True,
-                client_ref=refund.client_ref,
             )
 
 

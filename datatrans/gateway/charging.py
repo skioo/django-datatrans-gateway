@@ -12,7 +12,7 @@ from ..models import AliasRegistration, Payment
 logger = get_logger()
 
 
-def charge(value: Money, client_ref: str, alias_registration_id: str) -> Payment:
+def charge(value: Money, alias_registration_id: str, client_ref: str) -> Payment:
     """
     Charges money using datatrans, given a previously registered card alias.
 
