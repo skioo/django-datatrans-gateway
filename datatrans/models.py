@@ -21,7 +21,7 @@ class TransactionBase(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     merchant_id = models.CharField(db_index=True, max_length=255)
     client_ref = models.CharField(db_index=True, max_length=18)
-    value = MoneyField(max_digits=10, decimal_places=2, default_currency='CHF')
+    value = MoneyField(max_digits=12, decimal_places=2, default_currency='CHF')
     request_type = models.CharField(max_length=3, blank=True)
     expiry_month = models.IntegerField(null=True, blank=True)
     expiry_year = models.IntegerField(null=True, blank=True)
