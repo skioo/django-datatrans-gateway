@@ -90,3 +90,36 @@ class ParseRefundResponseTest(TestCase):
             error_detail='incorrect merchantId',
         )
         assertModelEqual(expected, parse_refund_response_xml(response))
+
+    def test_invalid_payment_transaction_id(self):
+        response = """<?xml version='1.0' encoding='utf8'?>
+<paymentService version='1'>
+  <body merchantId='2222222222' status='error'>
+    <transaction refno='theclientref-r' trxStatus='error'>
+      <request>
+        <amount>100</amount>
+        <currency>CHF</currency>
+        <uppTransactionId>thetransactionid</uppTransactionId>
+        <transtype>06</transtype>
+        <sign>15deeff44956dd3ffcf39cbcdc45e593f4dcfc0a0bf0c02aafb40c608050041f</sign>
+      </request>
+      <error>
+        <errorCode>2022</errorCode>
+        <errorMessage>invalid value</errorMessage>
+        <errorDetail> authorizationCode,</errorDetail>
+      </error>
+    </transaction>
+  </body>
+</paymentService>
+        """
+        expected = Refund(
+            success=False,
+            merchant_id='2222222222',
+            payment_transaction_id='thetransactionid',
+            client_ref='theclientref-r',
+            amount=Money(1, 'CHF'),
+            error_code='2022',
+            error_message='invalid value',
+            error_detail=' authorizationCode,',
+        )
+        assertModelEqual(expected, parse_refund_response_xml(response))

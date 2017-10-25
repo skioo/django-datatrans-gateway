@@ -94,20 +94,20 @@ class RefundForm(forms.Form):
     amount = MoneyField(min_value=0, default_currency='CHF')
 
 
-def refund_form(request, payment_id):
+def refund_form(request, transaction_id):
     if request.method == 'POST':
         form = RefundForm(request.POST)
         if form.is_valid():
             result = refund(
                 amount=form.cleaned_data['amount'],
-                payment_id=payment_id)
+                transaction_id=transaction_id)
             # As confirmation we just take the user to the edit page of the refund.
             refund_detail_url = reverse('admin:datatrans_refund_change', args=(result.id,))
             return HttpResponseRedirect(refund_detail_url)
     else:
         form = RefundForm()
 
-    payment = get_object_or_404(Payment, pk=payment_id)
+    payment = get_object_or_404(Payment, transaction_id=transaction_id)
 
     return render(
         request,
@@ -140,7 +140,7 @@ class PaymentAdmin(admin.ModelAdmin):
         urls = super().get_urls()
         my_urls = [
             url(
-                r'^(?P<payment_id>[0-9a-f-]+)/refund/$',
+                r'^(?P<transaction_id>\w+)/refund/$',
                 self.admin_site.admin_view(refund_form),
                 name='refund',
             ),
@@ -151,7 +151,7 @@ class PaymentAdmin(admin.ModelAdmin):
         if obj.success:
             return format_html(
                 '<a class="button" href="{}">Refund</a>',
-                reverse('admin:refund', args=[obj.pk]),
+                reverse('admin:refund', args=[obj.transaction_id]),
             )
 
     refund_button.short_description = 'Refund'  # type: ignore

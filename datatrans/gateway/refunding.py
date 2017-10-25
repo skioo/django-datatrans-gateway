@@ -12,7 +12,7 @@ from ..models import Payment, Refund
 logger = get_logger()
 
 
-def refund(amount: Money, payment_id: str) -> Refund:
+def refund(amount: Money, transaction_id: str) -> Refund:
     """
     Refunds (partially or completely) a previously authorized and settled transaction.
 
@@ -20,7 +20,7 @@ def refund(amount: Money, payment_id: str) -> Refund:
     """
     if amount.amount <= 0:
         raise ValueError('Refund takes a strictly positive amount')
-    payment = Payment.objects.get(pk=payment_id)
+    payment = Payment.objects.get(transaction_id=transaction_id)
     if not payment.success:
         raise ValueError('Only successful payments can be refunded')
     if payment.amount.currency != amount.currency:
@@ -29,14 +29,14 @@ def refund(amount: Money, payment_id: str) -> Refund:
         raise ValueError('Refund amount exceeds original payment amount')
 
     logger.info('refunding-payment', amount=str(amount),
-                payment=dict(id=payment_id, amount=str(payment.amount), transaction_id=payment.transaction_id,
+                payment=dict(amount=str(payment.amount), transaction_id=payment.transaction_id,
                              masked_card_number=payment.masked_card_number))
 
     client_ref = '{}-r'.format(payment.client_ref)
 
     request_xml = build_refund_request_xml(amount=amount,
                                            client_ref=client_ref,
-                                           original_transaction_id=payment.transaction_id)
+                                           original_transaction_id=transaction_id)
 
     response = requests.post(
         url=datatrans_processor_url,
@@ -86,11 +86,14 @@ def parse_refund_response_xml(xml: bytes) -> Refund:
 
     common_attributes = dict(
         merchant_id=body.get('merchantId'),
-        request_type=request.find('reqtype').text,
         client_ref=transaction.get('refno'),
         amount=parse_money(request),
         payment_transaction_id=request.find('uppTransactionId').text,
     )
+
+    request_type = request.find('reqtype')
+    if request_type is not None:
+        common_attributes['request_type'] = request_type.text
 
     if status == 'accepted' and trx_status == 'response':
         response = transaction.find('response')
