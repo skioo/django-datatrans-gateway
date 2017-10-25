@@ -18,7 +18,7 @@ This implementation:
 - Handles the exchanges with datatrans, including the signing of requests and the verification of the signature of notifications.
 - Introduces persistent models for AliasRegistration, Payment, and Refund. These models record all exchanges with datatrans.
 - Sends signals whenever an AliasRegistration, Payment, or Refund is done. The signal is sent even if the operation failed, 
-the receiver should check the `is_success` flag received with the signal.
+the receiver should check the `success` flag received with the signal.
 
 
 Requirements

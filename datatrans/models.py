@@ -21,14 +21,14 @@ class TransactionBase(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     merchant_id = models.CharField(db_index=True, max_length=255)
     client_ref = models.CharField(db_index=True, max_length=18)
-    value = MoneyField(max_digits=12, decimal_places=2, default_currency='CHF')
+    amount = MoneyField(max_digits=12, decimal_places=2, default_currency='CHF')
     request_type = models.CharField(max_length=3, blank=True)
     expiry_month = models.IntegerField(null=True, blank=True)
     expiry_year = models.IntegerField(null=True, blank=True)
     expiry_date = models.DateField(null=True, blank=True)  # A field in the database so we can search for expired cards
     credit_card_country = models.CharField(db_index=True, max_length=3, blank=True)
 
-    is_success = models.BooleanField()
+    success = models.BooleanField()
 
     # If it's a success
     response_code = models.CharField(max_length=4, blank=True)
@@ -48,7 +48,7 @@ class TransactionBase(models.Model):
         super().save(*args, **kwargs)
 
     def _send_signal(self, signal):
-        signal.send(sender=None, instance=self, is_success=self.is_success)
+        signal.send(sender=None, instance=self, success=self.success)
 
     class Meta:
         abstract = True
@@ -57,7 +57,7 @@ class TransactionBase(models.Model):
         return '{} {} ({})'.format(
             self.__class__.__name__,
             self.transaction_id,
-            'successful' if self.is_success else 'failed'
+            'successful' if self.success else 'failed'
         )
 
     def __repr__(self):

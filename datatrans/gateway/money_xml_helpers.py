@@ -5,9 +5,9 @@ from moneyed import Money
 from typing import Tuple
 
 
-def value_to_amount_and_currency(value: Money) -> Tuple[int, str]:
-    amount = int(value.amount * 100)
-    currency_code = value.currency.code
+def money_to_amount_and_currency(money: Money) -> Tuple[int, str]:
+    amount = int(money.amount * 100)
+    currency_code = money.currency.code
     return amount, currency_code
 
 

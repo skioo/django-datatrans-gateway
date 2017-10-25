@@ -9,7 +9,7 @@ from .utils import assertModelEqual
 class BuildChargeRequestTest(TestCase):
     def test_build_request(self):
         xml = build_charge_request_xml(
-            value=Money(123, "CHF"),
+            amount=Money(123, "CHF"),
             client_ref='abcdef',
             alias_registration=AliasRegistration(
                 transaction_id='170707111922838874',
@@ -20,7 +20,7 @@ class BuildChargeRequestTest(TestCase):
                 expiry_month=12,
                 expiry_year=18,
                 client_ref='1234',
-                value=Money(123, 'CHF'),
+                amount=Money(123, 'CHF'),
                 payment_method='VIS',
                 credit_card_country='CHE',
                 authorization_code='953988933',
@@ -62,7 +62,7 @@ class ParseChargeResponseTest(TestCase):
   </body>
 </authorizationService>"""
         expected = Payment(
-            is_success=True,
+            success=True,
             transaction_id='170717104749732144',
             merchant_id='2222222222',
             request_type='CAA',
@@ -71,7 +71,7 @@ class ParseChargeResponseTest(TestCase):
             expiry_month=12,
             expiry_year=18,
             client_ref='1234',
-            value=Money(10, 'CHF'),
+            amount=Money(10, 'CHF'),
             credit_card_country='CHE',
             response_code='01',
             response_message='Authorized',
@@ -106,7 +106,7 @@ class ParseChargeResponseTest(TestCase):
   </body>
 </authorizationService>"""
         expected = Payment(
-            is_success=False,
+            success=False,
             transaction_id='170718174305765364',
             merchant_id='2222222222',
             request_type='CAA',
@@ -114,7 +114,7 @@ class ParseChargeResponseTest(TestCase):
             expiry_month=12,
             expiry_year=18,
             client_ref='1234',
-            value=Money(99, 'CHF'),
+            amount=Money(99, 'CHF'),
             credit_card_country='CHE',
             error_code='1403',
             error_message='declined',
@@ -148,7 +148,7 @@ class ParseChargeResponseTest(TestCase):
   </body>
 </authorizationService>"""
         expected = Payment(
-            is_success=False,
+            success=False,
             transaction_id='170718193544941457',
             merchant_id='2222222222',
             request_type='CAA',
@@ -156,7 +156,7 @@ class ParseChargeResponseTest(TestCase):
             expiry_month=12,
             expiry_year=18,
             client_ref='1234',
-            value=Money(111, 'RUB'),
+            amount=Money(111, 'RUB'),
             credit_card_country='CHE',
             error_code='1009',
             error_message='payment acquirer does not exist',

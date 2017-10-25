@@ -5,31 +5,31 @@ from moneyed import Money
 import requests
 from structlog import get_logger
 
-from .money_xml_helpers import parse_money, value_to_amount_and_currency
+from .money_xml_helpers import money_to_amount_and_currency, parse_money
 from ..config import datatrans_authorize_url, mpo_merchant_id, sign_mpo
 from ..models import AliasRegistration, Payment
 
 logger = get_logger()
 
 
-def charge(value: Money, alias_registration_id: str, client_ref: str) -> Payment:
+def charge(amount: Money, alias_registration_id: str, client_ref: str) -> Payment:
     """
     Charges money using datatrans, given a previously registered card alias.
 
-    :param value: The amount and currency we want to charge
+    :param amount: The amount and currency we want to charge
     :param client_ref: A unique reference for this charge
     :param alias_registration:
     :return: a Payment (either successful or not)
     """
-    if value.amount <= 0:
-        raise ValueError('Charge takes a strictly positive value')
+    if amount.amount <= 0:
+        raise ValueError('Charge takes a strictly positive amount')
 
     alias_registration = AliasRegistration.objects.get(pk=alias_registration_id)
 
-    logger.info('charging-credit-card', value=value, client_ref=client_ref,
+    logger.info('charging-credit-card', amount=amount, client_ref=client_ref,
                 alias_registration=alias_registration)
 
-    request_xml = build_charge_request_xml(value, client_ref, alias_registration)
+    request_xml = build_charge_request_xml(amount, client_ref, alias_registration)
 
     response = requests.post(
         url=datatrans_authorize_url,
@@ -45,7 +45,7 @@ def charge(value: Money, alias_registration_id: str, client_ref: str) -> Payment
     return charge_response
 
 
-def build_charge_request_xml(value: Money, client_ref: str, alias_registration: AliasRegistration) -> bytes:
+def build_charge_request_xml(amount: Money, client_ref: str, alias_registration: AliasRegistration) -> bytes:
     merchant_id = mpo_merchant_id
     client_ref = client_ref
 
@@ -60,7 +60,7 @@ def build_charge_request_xml(value: Money, client_ref: str, alias_registration: 
 
     request = SubElement(transaction, 'request')
 
-    amount, currency = value_to_amount_and_currency(value)
+    amount, currency = money_to_amount_and_currency(amount)
     SubElement(request, 'amount').text = str(amount)
     SubElement(request, 'currency').text = currency
     SubElement(request, 'aliasCC').text = alias_registration.card_alias
@@ -86,7 +86,7 @@ def parse_charge_response_xml(xml: bytes) -> Payment:
         expiry_year=int(request.find('expy').text),
         request_type=request.find('reqtype').text,
         client_ref=transaction.get('refno'),
-        value=parse_money(request)
+        amount=parse_money(request)
     )
 
     if status == 'accepted' and trx_status == 'response':
@@ -102,7 +102,7 @@ def parse_charge_response_xml(xml: bytes) -> Payment:
         acquirer_authorization_code = response.find('acqAuthorizationCode').text
 
         d = dict(
-            is_success=True,
+            success=True,
             transaction_id=transaction_id,
             masked_card_number=masked_card_number,
             credit_card_country=return_customer_country,
@@ -119,7 +119,7 @@ def parse_charge_response_xml(xml: bytes) -> Payment:
         acquirer_error_code_element = error.find('acqErrorCode')
 
         d = dict(
-            is_success=False,
+            success=False,
             error_code=error.find('errorCode').text,
             error_message=error.find('errorMessage').text,
             error_detail=error.find('errorDetail').text,

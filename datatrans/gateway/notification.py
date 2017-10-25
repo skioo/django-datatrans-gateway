@@ -29,7 +29,7 @@ def parse_notification_xml(xml: str) -> Union[AliasRegistration, Payment]:
     def get_named_parameter(name):
         return _user_parameters.find("parameter[@name='" + name + "']")
 
-    def is_success():
+    def success():
         return transaction.get('status') == 'success'
 
     def parse_success():
@@ -68,7 +68,7 @@ def parse_notification_xml(xml: str) -> Union[AliasRegistration, Payment]:
             transaction_id=transaction.find('uppTransactionId').text,
             merchant_id=body.get('merchantId'),
             client_ref=transaction.get('refno'),
-            value=parse_money(transaction))
+            amount=parse_money(transaction))
 
         payment_method = transaction.find('pmethod')
         if payment_method is not None:
@@ -102,22 +102,22 @@ def parse_notification_xml(xml: str) -> Union[AliasRegistration, Payment]:
             card_alias=get_named_parameter('aliasCC').text,
         )
 
-        if is_success():
-            d = dict(is_success=True)
+        if success():
+            d = dict(success=True)
             d.update(register_alias_attributes)
             d.update(parse_common_attributes())
             d.update(parse_success())
             return AliasRegistration(**d)
         else:
-            d = dict(is_success=False)
+            d = dict(success=False)
             d.update(register_alias_attributes)
             d.update(parse_common_attributes())
             d.update(parse_error())
             return AliasRegistration(**d)
     else:
         # It's a payment or a charge
-        if is_success():
-            d = dict(is_success=True)
+        if success():
+            d = dict(success=True)
             cardno = get_named_parameter('cardno')
             if cardno is not None:
                 d['masked_card_number'] = cardno.text
@@ -125,7 +125,7 @@ def parse_notification_xml(xml: str) -> Union[AliasRegistration, Payment]:
             d.update(parse_success())
             return Payment(**d)
         else:
-            d = dict(is_success=False)
+            d = dict(success=False)
             d.update(parse_common_attributes())
             d.update(parse_error())
             return Payment(**d)

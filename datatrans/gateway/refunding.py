@@ -5,36 +5,36 @@ from moneyed import Money
 import requests
 from structlog import get_logger
 
-from .money_xml_helpers import parse_money, value_to_amount_and_currency
+from .money_xml_helpers import money_to_amount_and_currency, parse_money
 from ..config import datatrans_processor_url, sign_web, web_merchant_id
 from ..models import Payment, Refund
 
 logger = get_logger()
 
 
-def refund(value: Money, payment_id: str) -> Refund:
+def refund(amount: Money, payment_id: str) -> Refund:
     """
     Refunds (partially or completely) a previously authorized and settled transaction.
 
     Returns a refund (either successful or not).
     """
-    if value.amount <= 0:
-        raise ValueError('Refund takes a strictly positive value')
+    if amount.amount <= 0:
+        raise ValueError('Refund takes a strictly positive amount')
     payment = Payment.objects.get(pk=payment_id)
-    if not payment.is_success:
+    if not payment.success:
         raise ValueError('Only successful payments can be refunded')
-    if payment.value.currency != value.currency:
+    if payment.amount.currency != amount.currency:
         raise ValueError('Refund currency must be identical to original payment currency')
-    if value.amount > payment.value.amount:
-        raise ValueError('Refund value exceeds original payment value')
+    if amount.amount > payment.amount.amount:
+        raise ValueError('Refund amount exceeds original payment amount')
 
-    logger.info('refunding-payment', value=str(value),
-                payment=dict(id=payment_id, value=str(payment.value), transaction_id=payment.transaction_id,
+    logger.info('refunding-payment', amount=str(amount),
+                payment=dict(id=payment_id, amount=str(payment.amount), transaction_id=payment.transaction_id,
                              masked_card_number=payment.masked_card_number))
 
     client_ref = '{}-r'.format(payment.client_ref)
 
-    request_xml = build_refund_request_xml(value=value,
+    request_xml = build_refund_request_xml(amount=amount,
                                            client_ref=client_ref,
                                            original_transaction_id=payment.transaction_id)
 
@@ -52,7 +52,7 @@ def refund(value: Money, payment_id: str) -> Refund:
     return refund_response
 
 
-def build_refund_request_xml(value: Money, client_ref: str, original_transaction_id: str) -> bytes:
+def build_refund_request_xml(amount: Money, client_ref: str, original_transaction_id: str) -> bytes:
     merchant_id = web_merchant_id
     client_ref = client_ref
 
@@ -67,7 +67,7 @@ def build_refund_request_xml(value: Money, client_ref: str, original_transaction
 
     request = SubElement(transaction, 'request')
 
-    amount, currency = value_to_amount_and_currency(value)
+    amount, currency = money_to_amount_and_currency(amount)
     SubElement(request, 'amount').text = str(amount)
     SubElement(request, 'currency').text = currency
     SubElement(request, 'uppTransactionId').text = original_transaction_id
@@ -88,7 +88,7 @@ def parse_refund_response_xml(xml: bytes) -> Refund:
         merchant_id=body.get('merchantId'),
         request_type=request.find('reqtype').text,
         client_ref=transaction.get('refno'),
-        value=parse_money(request),
+        amount=parse_money(request),
         payment_transaction_id=request.find('uppTransactionId').text,
     )
 
@@ -102,7 +102,7 @@ def parse_refund_response_xml(xml: bytes) -> Refund:
         acquirer_authorization_code = response.find('acqAuthorizationCode').text
 
         d = dict(
-            is_success=True,
+            success=True,
             transaction_id=transaction_id,
             response_code=response_code,
             response_message=response_message,
@@ -117,7 +117,7 @@ def parse_refund_response_xml(xml: bytes) -> Refund:
         acquirer_error_code_element = error.find('acqErrorCode')
 
         d = dict(
-            is_success=False,
+            success=False,
             error_code=error.find('errorCode').text,
             error_message=error.find('errorMessage').text,
             error_detail=error.find('errorDetail').text,

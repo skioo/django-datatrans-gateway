@@ -17,12 +17,12 @@ def expiry(obj):
         return format_html('{}/{}', obj.expiry_month, obj.expiry_year)
 
 
-def value(obj):
-    return format_money(obj.value)
+def amount(obj):
+    return format_money(obj.amount)
 
 
 class ChargeForm(forms.Form):
-    value = MoneyField(min_value=0, default_currency='CHF')
+    amount = MoneyField(min_value=0, default_currency='CHF')
     client_ref = CharField(required=True, max_length=18, widget=TextInput(attrs={'size': 18}))
 
 
@@ -31,7 +31,7 @@ def charge_form(request, alias_registration_id):
         form = ChargeForm(request.POST)
         if form.is_valid():
             result = charge(
-                value=form.cleaned_data['value'],
+                amount=form.cleaned_data['amount'],
                 alias_registration_id=alias_registration_id,
                 client_ref=form.cleaned_data['client_ref'],
             )
@@ -59,14 +59,14 @@ class AliasRegistrationAdmin(admin.ModelAdmin):
     date_hierarchy = 'created'
     readonly_fields = ['created', 'expiry_date', 'charge_button']
     list_display = [
-        'transaction_id', 'created', 'is_success', 'client_ref', value, 'payment_method', 'card_alias',
+        'transaction_id', 'created', 'success', 'client_ref', amount, 'payment_method', 'card_alias',
         'masked_card_number', expiry,
         'credit_card_country', 'error_code', 'charge_button']
     search_fields = [
         'transaction_id', 'created', 'expiry_date', 'payment_method', 'card_alias', 'masked_card_number',
         'expiry_month', 'expiry_year', 'credit_card_country', 'client_ref', 'response_code',
         'authorization_code', 'acquirer_authorization_code', 'error_code', 'error_message', 'error_detail']
-    list_filter = ['is_success', 'payment_method', 'credit_card_country']
+    list_filter = ['success', 'payment_method', 'credit_card_country']
     ordering = ['-created']
 
     def get_urls(self):
@@ -81,7 +81,7 @@ class AliasRegistrationAdmin(admin.ModelAdmin):
         return my_urls + urls
 
     def charge_button(self, obj):
-        if obj.is_success:
+        if obj.success:
             return format_html(
                 '<a class="button" href="{}">Charge</a>',
                 reverse('admin:charge', args=[obj.pk]),
@@ -91,7 +91,7 @@ class AliasRegistrationAdmin(admin.ModelAdmin):
 
 
 class RefundForm(forms.Form):
-    value = MoneyField(min_value=0, default_currency='CHF')
+    amount = MoneyField(min_value=0, default_currency='CHF')
 
 
 def refund_form(request, payment_id):
@@ -99,7 +99,7 @@ def refund_form(request, payment_id):
         form = RefundForm(request.POST)
         if form.is_valid():
             result = refund(
-                value=form.cleaned_data['value'],
+                amount=form.cleaned_data['amount'],
                 payment_id=payment_id)
             # As confirmation we just take the user to the edit page of the refund.
             refund_detail_url = reverse('admin:datatrans_refund_change', args=(result.id,))
@@ -113,7 +113,7 @@ def refund_form(request, payment_id):
         request,
         'admin/datatrans/form.html',
         {
-            'title': 'Refund for original payment of {}, with {}'.format(payment.value, payment.masked_card_number),
+            'title': 'Refund for original payment of {}, with {}'.format(payment.amount, payment.masked_card_number),
             'form': form,
             'opts': Payment._meta,  # Used to setup the navigation / breadcrumbs of the page
         }
@@ -125,15 +125,15 @@ class PaymentAdmin(admin.ModelAdmin):
     date_hierarchy = 'created'
     readonly_fields = ['created']
     list_display = [
-        'transaction_id', 'created', 'is_success', 'client_ref', value, 'payment_method', 'card_alias',
+        'transaction_id', 'created', 'success', 'client_ref', amount, 'payment_method', 'card_alias',
         'masked_card_number', expiry,
         'credit_card_country', 'error_code', 'refund_button']
     search_fields = [
-        'transaction_id', 'created', 'expiry_date', 'payment_method', 'card_alias', 'masked_card_number', 'value',
+        'transaction_id', 'created', 'expiry_date', 'payment_method', 'card_alias', 'masked_card_number', 'amount',
         'expiry_month', 'expiry_year', 'credit_card_country', 'client_ref', 'response_code',
         'authorization_code', 'acquirer_authorization_code', 'error_code', 'error_message', 'error_detail']
-    list_filter = ['is_success', 'payment_method', 'credit_card_country',
-                   ('value_currency', admin.AllValuesFieldListFilter)]
+    list_filter = ['success', 'payment_method', 'credit_card_country',
+                   ('amount_currency', admin.AllValuesFieldListFilter)]
     ordering = ['-created']
 
     def get_urls(self):
@@ -148,7 +148,7 @@ class PaymentAdmin(admin.ModelAdmin):
         return my_urls + urls
 
     def refund_button(self, obj):
-        if obj.is_success:
+        if obj.success:
             return format_html(
                 '<a class="button" href="{}">Refund</a>',
                 reverse('admin:refund', args=[obj.pk]),
@@ -162,12 +162,12 @@ class RefundAdmin(admin.ModelAdmin):
     date_hierarchy = 'created'
     readonly_fields = ['created']
     list_display = [
-        'transaction_id', 'payment_transaction_id', 'created', 'is_success', 'client_ref', value, 'error_code',
+        'transaction_id', 'payment_transaction_id', 'created', 'success', 'client_ref', amount, 'error_code',
         'error_message']
     list_display_links = ['transaction_id', 'payment_transaction_id']
 
     search_fields = [
-        'transaction_id', 'payment_transaction_id', 'created', 'client_ref', 'value', 'response_code',
+        'transaction_id', 'payment_transaction_id', 'created', 'client_ref', 'amount', 'response_code',
         'authorization_code', 'acquirer_authorization_code', 'error_code', 'error_message', 'error_detail']
-    list_filter = ['is_success', ('value_currency', admin.AllValuesFieldListFilter)]
+    list_filter = ['success', ('amount_currency', admin.AllValuesFieldListFilter)]
     ordering = ['-created']

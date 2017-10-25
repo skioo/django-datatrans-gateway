@@ -29,7 +29,7 @@ def register_alias(request: HttpRequest) -> HttpResponse:
         form = RegisterAliasForm(request.POST)
         if form.is_valid():
             payment_parameters = build_payment_parameters(
-                value=Money(0, 'CHF'),
+                amount=Money(0, 'CHF'),
                 client_ref=form.cleaned_data['client_ref']
             )
             context = {
@@ -50,7 +50,7 @@ def register_alias(request: HttpRequest) -> HttpResponse:
 
 
 class PayForm(forms.Form):
-    value = MoneyField(min_value=0, default_currency='CHF')
+    amount = MoneyField(min_value=0, default_currency='CHF')
     client_ref = CharField(
         required=True,
         max_length=CLIENT_REF_FIELD_SIZE,
@@ -62,14 +62,14 @@ def pay(request: HttpRequest) -> HttpResponse:
     if request.method == 'POST':
         form = PayForm(request.POST)
         if form.is_valid():
-            value = form.cleaned_data['value']
+            amount = form.cleaned_data['amount']
             payment_parameters = build_payment_parameters(
-                value=value,
+                amount=amount,
                 client_ref=form.cleaned_data['client_ref']
             )
             context = {
                 'datatrans_js_url': datatrans_js_url,
-                'title': 'Pay {}'.format(value),
+                'title': 'Pay {}'.format(amount),
             }
             context.update(payment_parameters._asdict())
 

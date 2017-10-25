@@ -9,7 +9,7 @@ from .utils import assertModelEqual
 class BuildRefundRequestTest(TestCase):
     def test_build_request(self):
         xml = build_refund_request_xml(
-            value=Money(123, "CHF"),
+            amount=Money(123, "CHF"),
             client_ref='abcdef',
             original_transaction_id='12345'
         )
@@ -43,13 +43,13 @@ class ParseRefundResponseTest(TestCase):
   </body>
 </paymentService>"""
         expected = Refund(
-            is_success=True,
+            success=True,
             transaction_id='171015120225118036',
             merchant_id='1111111111',
             request_type='COA',
             payment_transaction_id='170803184046388845',
             client_ref='nico-r',
-            value=Money(1, 'CHF'),
+            amount=Money(1, 'CHF'),
             response_code='01',
             response_message='credit succeeded',
             authorization_code='225128037',
@@ -79,12 +79,12 @@ class ParseRefundResponseTest(TestCase):
   </body>
 </paymentService>"""
         expected = Refund(
-            is_success=False,
+            success=False,
             merchant_id='2222222222',
             request_type='COA',
             payment_transaction_id='170803184046388845',
             client_ref='nico-r',
-            value=Money(1, 'CHF'),
+            amount=Money(1, 'CHF'),
             error_code='2000',
             error_message='access denied',
             error_detail='incorrect merchantId',

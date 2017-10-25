@@ -6,7 +6,7 @@ from datatrans.gateway import PaymentParameters, build_payment_parameters
 
 class DirectPaymentTest(TestCase):
     def test_it_should_generate_payment_parameters(self):
-        payment_parameters = build_payment_parameters(value=Money(8.50, 'CHF'), client_ref='91827364')
+        payment_parameters = build_payment_parameters(amount=Money(8.50, 'CHF'), client_ref='91827364')
         expected = PaymentParameters(
             merchant_id='1111111111',
             amount=850,

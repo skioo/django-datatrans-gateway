@@ -11,14 +11,14 @@ from datatrans.signals import alias_registration_done, payment_done, refund_done
 class EventProcessingTest(TestCase):
     def test_payment_error(self):
         payment_error = Payment(
-            is_success=False,
+            success=False,
             transaction_id='170720154219033737',
             merchant_id='1111111111',
             request_type='CAA',
             expiry_month=12,
             expiry_year=19,
             client_ref='1234',
-            value=Money(1.0, 'CHF'),
+            amount=Money(1.0, 'CHF'),
             payment_method='VIS',
             credit_card_country='CHE',
 
@@ -33,12 +33,12 @@ class EventProcessingTest(TestCase):
                 sender=None,
                 signal=payment_done,
                 instance=payment_error,
-                is_success=False,
+                success=False,
             )
 
     def test_payment_success(self):
         payment = Payment(
-            is_success=True,
+            success=True,
             transaction_id='170717104749732144',
             merchant_id='2222222222',
             request_type='CAA',
@@ -47,7 +47,7 @@ class EventProcessingTest(TestCase):
             expiry_month=12,
             expiry_year=18,
             client_ref='1234',
-            value=Money(10, 'CHF'),
+            amount=Money(10, 'CHF'),
             credit_card_country='CHE',
 
             response_code='01',
@@ -61,12 +61,12 @@ class EventProcessingTest(TestCase):
                 sender=None,
                 instance=payment,
                 signal=payment_done,
-                is_success=True,
+                success=True,
             )
 
     def test_register_alias_success(self):
         alias_registration = AliasRegistration(
-            is_success=True,
+            success=True,
             transaction_id='170710155947695609',
             merchant_id='1111111111',
             request_type='CAA',
@@ -75,7 +75,7 @@ class EventProcessingTest(TestCase):
             expiry_month=11,
             expiry_year=18,
             client_ref='1234',
-            value=Money(0, 'CHF'),
+            amount=Money(0, 'CHF'),
             payment_method='VIS',
             credit_card_country='CHE',
 
@@ -90,18 +90,18 @@ class EventProcessingTest(TestCase):
                 sender=None,
                 signal=alias_registration_done,
                 instance=alias_registration,
-                is_success=True,
+                success=True,
             )
 
     def test_refund_success(self):
         refund = Refund(
-            is_success=True,
+            success=True,
             transaction_id='171015120225118036',
             merchant_id='1111111111',
             request_type='COA',
             payment_transaction_id='170803184046388845',
             client_ref='r-1234',
-            value=Money(1, 'CHF'),
+            amount=Money(1, 'CHF'),
             response_code='01',
             response_message='credit succeeded',
             authorization_code='225128037',
@@ -114,7 +114,7 @@ class EventProcessingTest(TestCase):
                 sender=None,
                 signal=refund_done,
                 instance=refund,
-                is_success=True,
+                success=True,
             )
 
 

@@ -44,7 +44,7 @@ class ParseRegisterAliasTest(TestCase):
 </uppTransactionService>
     """
         expected = AliasRegistration(
-            is_success=True,
+            success=True,
             transaction_id='170707111922838874',
             merchant_id='1111111111',
             request_type='CAA',
@@ -53,7 +53,7 @@ class ParseRegisterAliasTest(TestCase):
             expiry_month=12,
             expiry_year=18,
             client_ref='b0ca4cf0-7955-4eb3-978b-936194c8fe23',
-            value=Money(0, 'CHF'),
+            amount=Money(0, 'CHF'),
             payment_method='VIS',
             credit_card_country='CHE',
             response_code='01',
@@ -137,7 +137,7 @@ class ParseRegisterAliasTest(TestCase):
 </uppTransactionService>
         """
         expected = AliasRegistration(
-            is_success=False,
+            success=False,
             transaction_id='170710155947695609',
             merchant_id='1111111111',
             request_type='CAA',
@@ -146,7 +146,7 @@ class ParseRegisterAliasTest(TestCase):
             expiry_month=11,
             expiry_year=18,
             client_ref='1234',
-            value=Money(0, 'CHF'),
+            amount=Money(0, 'CHF'),
             payment_method='VIS',
             credit_card_country='CHE',
 
@@ -194,7 +194,7 @@ class ParsePaymentTest(TestCase):
 </uppTransactionService>
         """
         expected = Payment(
-            is_success=True,
+            success=True,
             transaction_id='170719094930353253',
             merchant_id='1111111111',
             request_type='CAA',
@@ -202,7 +202,7 @@ class ParsePaymentTest(TestCase):
             expiry_month=12,
             expiry_year=18,
             client_ref='1234',
-            value=Money(1.0, 'CHF'),
+            amount=Money(1.0, 'CHF'),
             payment_method='ECA',
             credit_card_country='MYS',
             response_code='01',
@@ -247,7 +247,7 @@ class ParsePaymentTest(TestCase):
   </body>
 </uppTransactionService>"""
         expected = Payment(
-            is_success=True,
+            success=True,
             transaction_id='170721140542657759',
             merchant_id='1111111111',
             request_type='CAA',
@@ -255,7 +255,7 @@ class ParsePaymentTest(TestCase):
             expiry_month=12,
             expiry_year=18,
             client_ref='1',
-            value=Money(1.0, 'CHF'),
+            amount=Money(1.0, 'CHF'),
             payment_method='VIS',
             credit_card_country='CHE',
             response_code='01',
@@ -297,14 +297,14 @@ class ParsePaymentTest(TestCase):
 </uppTransactionService>
 """
         expected = Payment(
-            is_success=False,
+            success=False,
             transaction_id='170720154219033737',
             merchant_id='1111111111',
             request_type='CAA',
             expiry_month=12,
             expiry_year=19,
             client_ref='1234',
-            value=Money(1.0, 'CHF'),
+            amount=Money(1.0, 'CHF'),
             payment_method='VIS',
             credit_card_country='CHE',
 
@@ -339,11 +339,11 @@ class ParsePaymentTest(TestCase):
   </body>
 </uppTransactionService>"""
         expected = Payment(
-            is_success=False,
+            success=False,
             transaction_id='170802095839802669',
             merchant_id='1111111111',
             client_ref='5',
-            value=Money(5, 'RUB'),
+            amount=Money(5, 'RUB'),
             error_code='-999',
             error_message='without error message',
             error_detail='not available payment method',
@@ -380,12 +380,12 @@ class ParsePaymentTest(TestCase):
   </body>
 </uppTransactionService>"""
         expected = Payment(
-            is_success=True,
+            success=True,
             transaction_id='170928152808316732',
             merchant_id='1111111111',
             request_type='CAA',
             client_ref='1234',
-            value=Money(3, 'CHF'),
+            amount=Money(3, 'CHF'),
             payment_method='PPA',
             authorization_code='924837574',
             acquirer_authorization_code='949a42070f1a497fabbf6b0ddf20b0e4',
