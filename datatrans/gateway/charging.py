@@ -12,19 +12,19 @@ from ..models import AliasRegistration, Payment
 logger = get_logger()
 
 
-def charge(amount: Money, alias_registration_id: str, client_ref: str) -> Payment:
+def charge(amount: Money, credit_card_alias: str, client_ref: str) -> Payment:
     """
-    Charges money using datatrans, given a previously registered card alias.
+    Charges money using datatrans, given a previously registered credit card alias.
 
     :param amount: The amount and currency we want to charge
+    :param credit_card_alias: The credit card alias to use
     :param client_ref: A unique reference for this charge
-    :param alias_registration:
     :return: a Payment (either successful or not)
     """
     if amount.amount <= 0:
         raise ValueError('Charge takes a strictly positive amount')
 
-    alias_registration = AliasRegistration.objects.get(pk=alias_registration_id)
+    alias_registration = AliasRegistration.objects.get(card_alias=credit_card_alias)  # XXX: There can be more than one?
 
     logger.info('charging-credit-card', amount=amount, client_ref=client_ref,
                 alias_registration=alias_registration)
