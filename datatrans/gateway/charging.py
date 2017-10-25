@@ -24,7 +24,8 @@ def charge(amount: Money, credit_card_alias: str, client_ref: str) -> Payment:
     if amount.amount <= 0:
         raise ValueError('Charge takes a strictly positive amount')
 
-    alias_registration = AliasRegistration.objects.get(card_alias=credit_card_alias)  # XXX: There can be more than one?
+    # XXX: There can be more than one?
+    alias_registration = AliasRegistration.objects.get(card_alias=credit_card_alias)
 
     logger.info('charging-credit-card', amount=amount, client_ref=client_ref,
                 alias_registration=alias_registration)
