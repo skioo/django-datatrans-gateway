@@ -2,12 +2,16 @@ import calendar
 from datetime import date
 import uuid
 
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from djmoney.models.fields import MoneyField
 
 from .signals import alias_registration_done, payment_done, refund_done
 
 CLIENT_REF_FIELD_SIZE = 18
+
+expiry_month_validators = [MinValueValidator(1), MaxValueValidator(12)]
+expiry_year_validators = [MinValueValidator(0), MaxValueValidator(99)]
 
 
 def compute_expiry_date(two_digit_year: int, month: int) -> date:
@@ -17,14 +21,23 @@ def compute_expiry_date(two_digit_year: int, month: int) -> date:
 
 
 class TransactionBase(models.Model):
+    """"
+    All the fields that are common to the different transaction types.
+    Some of the fields declared here are redefined in subclasses:
+    For instance expiry_month and expiry_year are optional in this base class,
+    but in an alias registration those fields are mandatory.
+    """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     created = models.DateTimeField(auto_now_add=True)
     merchant_id = models.CharField(db_index=True, max_length=255)
+    transaction_id = models.CharField(unique=True, max_length=18, blank=True, null=True)
     client_ref = models.CharField(db_index=True, max_length=18)
     amount = MoneyField(max_digits=12, decimal_places=2, default_currency='CHF')
     request_type = models.CharField(max_length=3, blank=True)
-    expiry_month = models.IntegerField(null=True, blank=True)
-    expiry_year = models.IntegerField(null=True, blank=True)
+
+    expiry_month = models.IntegerField(null=True, blank=True, validators=expiry_month_validators)
+    expiry_year = models.IntegerField(null=True, blank=True, validators=expiry_year_validators)
+
     expiry_date = models.DateField(null=True, blank=True)  # A field in the database so we can search for expired cards
     credit_card_country = models.CharField(db_index=True, max_length=3, blank=True)
 
@@ -70,6 +83,8 @@ class AliasRegistration(TransactionBase):
     card_alias = models.CharField(db_index=True, max_length=20)
     masked_card_number = models.CharField(max_length=255)
     payment_method = models.CharField(db_index=True, max_length=3)
+    expiry_month = models.IntegerField(validators=expiry_month_validators)
+    expiry_year = models.IntegerField(validators=expiry_year_validators)
 
     def send_signal(self):
         self._send_signal(alias_registration_done)
@@ -89,7 +104,6 @@ class Payment(TransactionBase):
 
 
 class Refund(TransactionBase):
-    transaction_id = models.CharField(unique=True, max_length=18, blank=True, null=True)
     payment_transaction_id = models.CharField(db_index=True, max_length=18)
 
     def send_signal(self):
