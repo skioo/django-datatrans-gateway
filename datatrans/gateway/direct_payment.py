@@ -1,8 +1,11 @@
 from collections import namedtuple
 from moneyed import Money
+from structlog import get_logger
 
 from .money_xml_helpers import money_to_amount_and_currency
 from ..config import sign_web, web_merchant_id
+
+logger = get_logger()
 
 PaymentParameters = namedtuple('PaymentParameters', 'merchant_id amount currency refno sign')
 
@@ -19,6 +22,10 @@ def build_payment_parameters(amount: Money, client_ref: str) -> PaymentParameter
     amount, currency = money_to_amount_and_currency(amount)
     refno = client_ref
     sign = sign_web(merchant_id, amount, currency, refno)
+
+    logger.info('building-payment-parameters',
+                merchant_id=merchant_id, amount=amount, currency=currency, refno=refno)
+
     return PaymentParameters(
         merchant_id=merchant_id,
         amount=amount,

@@ -32,12 +32,14 @@ def charge(amount: Money, credit_card_alias: str, client_ref: str) -> Payment:
 
     request_xml = build_charge_request_xml(amount, client_ref, alias_registration)
 
+    logger.info('sending-charge-request', url=datatrans_authorize_url, data=request_xml)
+
     response = requests.post(
         url=datatrans_authorize_url,
         headers={'Content-Type': 'application/xml'},
         data=request_xml)
 
-    logger.debug('processing-charge-response', response=response.content)
+    logger.info('processing-charge-response', response=response.content)
 
     charge_response = parse_charge_response_xml(response.content)
     charge_response.save()

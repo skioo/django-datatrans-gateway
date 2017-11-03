@@ -38,12 +38,14 @@ def refund(amount: Money, transaction_id: str) -> Refund:
                                            client_ref=client_ref,
                                            original_transaction_id=transaction_id)
 
+    logger.info('sending-refund-request', url=datatrans_processor_url, data=request_xml)
+
     response = requests.post(
         url=datatrans_processor_url,
         headers={'Content-Type': 'application/xml'},
         data=request_xml)
 
-    logger.debug('processing-refund-response', response=response.content)
+    logger.info('processing-refund-response', response=response.content)
 
     refund_response = parse_refund_response_xml(response.content)
     refund_response.save()
