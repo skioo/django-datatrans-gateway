@@ -1,7 +1,7 @@
 from django.conf.urls import url
 
-from .views import notify
+from .views import webhook
 
 urlpatterns = [
-    url(r'notify$', notify.notify_handler, name='datatrans_notify'),
+    url(r'webhook$', webhook.webhook_handler, name='datatrans_webhook'),
 ]

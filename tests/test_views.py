@@ -2,8 +2,8 @@ from django.test import Client, TestCase
 from django.urls import reverse
 
 
-class NotifyViewTest(TestCase):
-    def test_it_should_process_a_notification(self):
+class WebhookViewTest(TestCase):
+    def test_it_should_process_a_webhook(self):
         xml = """<?xml version="1.0" encoding="UTF-8"?>
 <uppTransactionService version="1">
   <body merchantId="1111111111" testOnly="yes">
@@ -39,17 +39,17 @@ class NotifyViewTest(TestCase):
   </body>
 </uppTransactionService>
     """
-        response = Client().post(reverse('datatrans_notify'),
+        response = Client().post(reverse('datatrans_webhook'),
                                  content_type='text/xml', data=xml)
 
         assert response.status_code == 200
 
 
 class ExampleViewsTest(TestCase):
-    def test_it_should_show_a_form_for_the_example_register_alias_page(self):
-        response = Client().get(reverse('datatrans_example_register_alias'))
+    def test_it_should_show_a_form_for_the_example_register_credit_card_page(self):
+        response = Client().get(reverse('example_register_credit_card'))
         assert response.status_code == 200
 
     def test_it_should_show_a_form_for_the_example_pay_page(self):
-        response = Client().get(reverse('datatrans_example_pay'))
+        response = Client().get(reverse('example_pay'))
         assert response.status_code == 200

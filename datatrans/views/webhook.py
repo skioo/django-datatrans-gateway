@@ -10,7 +10,7 @@ logger = structlog.get_logger()
 
 @require_POST
 @csrf_exempt
-def notify_handler(request: HttpRequest) -> HttpResponse:
-    logger.info('datatrans-notification', body=request.body)
+def webhook_handler(request: HttpRequest) -> HttpResponse:
+    logger.info('datatrans-webhook', body=request.body)
     handle_notification(request.body)
     return HttpResponse()  # If we were able to digest the notification (be it a success or an error), we are happy.
