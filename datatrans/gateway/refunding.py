@@ -5,22 +5,24 @@ from moneyed import Money
 import requests
 from structlog import get_logger
 
-from .money_xml_helpers import money_to_amount_and_currency, parse_money
+from .xml_helpers import money_to_amount_and_currency, parse_money
 from ..config import datatrans_processor_url, sign_web, web_merchant_id
 from ..models import Payment, Refund
 
 logger = get_logger()
 
 
-def refund(amount: Money, transaction_id: str) -> Refund:
+def refund(amount: Money, payment_id: str) -> Refund:
     """
-    Refunds (partially or completely) a previously authorized and settled transaction.
-
-    Returns a refund (either successful or not).
+    Refunds (partially or completely) a previously authorized and settled payment.
+    :param amount: The amount and currency we want to refund. Must be positive, in the same currency
+    as the original payment, and not exceed the amount of the original payment.
+    :param payment_id: The id of the payment to refund.
+    :return: a Refund (either successful or not).
     """
     if amount.amount <= 0:
         raise ValueError('Refund takes a strictly positive amount')
-    payment = Payment.objects.get(transaction_id=transaction_id)
+    payment = Payment.objects.get(pk=payment_id)
     if not payment.success:
         raise ValueError('Only successful payments can be refunded')
     if payment.amount.currency != amount.currency:
@@ -36,7 +38,7 @@ def refund(amount: Money, transaction_id: str) -> Refund:
 
     request_xml = build_refund_request_xml(amount=amount,
                                            client_ref=client_ref,
-                                           original_transaction_id=transaction_id)
+                                           original_transaction_id=payment.transaction_id)
 
     logger.info('sending-refund-request', url=datatrans_processor_url, data=request_xml)
 

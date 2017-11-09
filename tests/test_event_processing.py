@@ -5,11 +5,11 @@ from django.test import TestCase
 from moneyed import Money
 
 from datatrans.models import AliasRegistration, Payment, Refund
-from datatrans.signals import alias_registration_done, payment_done, refund_done
+from datatrans.signals import alias_registration_done, payment_by_user_done, payment_with_alias_done, refund_done
 
 
 class EventProcessingTest(TestCase):
-    def test_payment_error(self):
+    def test_payment_by_user_error(self):
         payment_error = Payment(
             success=False,
             transaction_id='170720154219033737',
@@ -27,16 +27,41 @@ class EventProcessingTest(TestCase):
             error_detail='Declined',
             acquirer_error_code='50',
         )
-        with catch_signal(payment_done) as signal_handler:
+        with catch_signal(payment_by_user_done) as signal_handler:
             payment_error.send_signal()
             signal_handler.assert_called_once_with(
                 sender=None,
-                signal=payment_done,
+                signal=payment_by_user_done,
                 instance=payment_error,
-                success=False,
-            )
+                success=False)
 
-    def test_payment_success(self):
+    def test_payment_by_user_success(self):
+        payment = Payment(
+            success=True,
+            transaction_id='170717104749732144',
+            merchant_id='2222222222',
+            request_type='CAA',
+            masked_card_number='424242xxxxxx4242',
+            expiry_month=12,
+            expiry_year=18,
+            client_ref='1234',
+            amount=Money(10, 'CHF'),
+            credit_card_country='CHE',
+
+            response_code='01',
+            response_message='Authorized',
+            authorization_code='749762145',
+            acquirer_authorization_code='104749',
+        )
+        with catch_signal(payment_by_user_done) as signal_handler:
+            payment.send_signal()
+            signal_handler.assert_called_once_with(
+                sender=None,
+                instance=payment,
+                signal=payment_by_user_done,
+                success=True)
+
+    def test_payment_by_alias_success(self):
         payment = Payment(
             success=True,
             transaction_id='170717104749732144',
@@ -49,20 +74,19 @@ class EventProcessingTest(TestCase):
             client_ref='1234',
             amount=Money(10, 'CHF'),
             credit_card_country='CHE',
-
             response_code='01',
             response_message='Authorized',
             authorization_code='749762145',
             acquirer_authorization_code='104749',
         )
-        with catch_signal(payment_done) as signal_handler:
+
+        with catch_signal(payment_with_alias_done) as signal_handler:
             payment.send_signal()
             signal_handler.assert_called_once_with(
                 sender=None,
                 instance=payment,
-                signal=payment_done,
-                success=True,
-            )
+                signal=payment_with_alias_done,
+                success=True)
 
     def test_register_alias_success(self):
         alias_registration = AliasRegistration(
@@ -90,8 +114,7 @@ class EventProcessingTest(TestCase):
                 sender=None,
                 signal=alias_registration_done,
                 instance=alias_registration,
-                success=True,
-            )
+                success=True)
 
     def test_refund_success(self):
         refund = Refund(
@@ -114,8 +137,7 @@ class EventProcessingTest(TestCase):
                 sender=None,
                 signal=refund_done,
                 instance=refund,
-                success=True,
-            )
+                success=True)
 
 
 # From https://medium.freecodecamp.org/how-to-testing-django-signals-like-a-pro-c7ed74279311

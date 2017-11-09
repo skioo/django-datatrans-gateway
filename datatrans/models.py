@@ -6,7 +6,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from djmoney.models.fields import MoneyField
 
-from .signals import alias_registration_done, payment_done, refund_done
+from .signals import alias_registration_done, payment_by_user_done, payment_with_alias_done, refund_done
 
 CLIENT_REF_FIELD_SIZE = 18
 
@@ -100,7 +100,10 @@ class Payment(TransactionBase):
     payment_method = models.CharField(db_index=True, max_length=3, blank=True)
 
     def send_signal(self):
-        self._send_signal(payment_done)
+        if self.card_alias:
+            self._send_signal(payment_with_alias_done)
+        else:
+            self._send_signal(payment_by_user_done)
 
 
 class Refund(TransactionBase):

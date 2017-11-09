@@ -2,7 +2,7 @@ from defusedxml.ElementTree import fromstring
 from structlog import get_logger
 from typing import Union
 
-from .money_xml_helpers import parse_money
+from .xml_helpers import parse_money
 from ..config import sign_web
 from ..models import AliasRegistration, Payment
 

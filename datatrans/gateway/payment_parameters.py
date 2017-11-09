@@ -2,7 +2,7 @@ from collections import namedtuple
 from moneyed import Money
 from structlog import get_logger
 
-from .money_xml_helpers import money_to_amount_and_currency
+from .xml_helpers import money_to_amount_and_currency
 from ..config import sign_web, web_merchant_id
 
 logger = get_logger()

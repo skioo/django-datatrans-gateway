@@ -1,4 +1,4 @@
-__version__ = '0.8.5'
+__version__ = '0.8.6'
 __copyright__ = 'Copyright (c) 2017, skioo SA'
 __licence__ = 'MIT'
 __URL__ = 'https://github.com/skioo/django-datatrans-gateway'

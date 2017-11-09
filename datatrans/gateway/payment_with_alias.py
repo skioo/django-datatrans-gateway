@@ -5,50 +5,49 @@ from moneyed import Money
 import requests
 from structlog import get_logger
 
-from .money_xml_helpers import money_to_amount_and_currency, parse_money
+from .xml_helpers import money_to_amount_and_currency, parse_money
 from ..config import datatrans_authorize_url, mpo_merchant_id, sign_mpo
 from ..models import AliasRegistration, Payment
 
 logger = get_logger()
 
 
-def charge(amount: Money, credit_card_alias: str, client_ref: str) -> Payment:
+def pay_with_alias(amount: Money, alias_registration_id: str, client_ref: str) -> Payment:
     """
     Charges money using datatrans, given a previously registered credit card alias.
 
     :param amount: The amount and currency we want to charge
-    :param credit_card_alias: The credit card alias to use
+    :param alias_registration_id: The alias registration to use
     :param client_ref: A unique reference for this charge
     :return: a Payment (either successful or not)
     """
     if amount.amount <= 0:
-        raise ValueError('Charge takes a strictly positive amount')
+        raise ValueError('Pay with alias takes a strictly positive amount')
 
-    # XXX: There can be more than one?
-    alias_registration = AliasRegistration.objects.get(card_alias=credit_card_alias)
+    alias_registration = AliasRegistration.objects.get(pk=alias_registration_id)
 
-    logger.info('charging-credit-card', amount=amount, client_ref=client_ref,
+    logger.info('paying-with-alias', amount=amount, client_ref=client_ref,
                 alias_registration=alias_registration)
 
-    request_xml = build_charge_request_xml(amount, client_ref, alias_registration)
+    request_xml = build_pay_with_alias_request_xml(amount, client_ref, alias_registration)
 
-    logger.info('sending-charge-request', url=datatrans_authorize_url, data=request_xml)
+    logger.info('sending-pay-with-alias-request', url=datatrans_authorize_url, data=request_xml)
 
     response = requests.post(
         url=datatrans_authorize_url,
         headers={'Content-Type': 'application/xml'},
         data=request_xml)
 
-    logger.info('processing-charge-response', response=response.content)
+    logger.info('processing-pay-with-alias-response', response=response.content)
 
-    charge_response = parse_charge_response_xml(response.content)
+    charge_response = parse_pay_with_alias_response_xml(response.content)
     charge_response.save()
     charge_response.send_signal()
 
     return charge_response
 
 
-def build_charge_request_xml(amount: Money, client_ref: str, alias_registration: AliasRegistration) -> bytes:
+def build_pay_with_alias_request_xml(amount: Money, client_ref: str, alias_registration: AliasRegistration) -> bytes:
     merchant_id = mpo_merchant_id
     client_ref = client_ref
 
@@ -75,7 +74,7 @@ def build_charge_request_xml(amount: Money, client_ref: str, alias_registration:
     return tostring(root, encoding='utf8')
 
 
-def parse_charge_response_xml(xml: bytes) -> Payment:
+def parse_pay_with_alias_response_xml(xml: bytes) -> Payment:
     body = fromstring(xml).find('body')
     status = body.get('status')
     transaction = body.find('transaction')
@@ -115,20 +114,24 @@ def parse_charge_response_xml(xml: bytes) -> Payment:
             acquirer_authorization_code=acquirer_authorization_code,
         )
         d.update(common_attributes)
-        return Payment(**d)
     else:
         error = transaction.find('error')
-
-        acquirer_error_code_element = error.find('acqErrorCode')
 
         d = dict(
             success=False,
             error_code=error.find('errorCode').text,
             error_message=error.find('errorMessage').text,
             error_detail=error.find('errorDetail').text,
-            acquirer_error_code=acquirer_error_code_element.text if acquirer_error_code_element is not None else '',
+            acquirer_error_code=text_or_else(error.find('acqErrorCode')),
             transaction_id=error.find('uppTransactionId').text,
-            credit_card_country=error.find('returnCustomerCountry').text,
+            credit_card_country=text_or_else(error.find('returnCustomerCountry')),
         )
         d.update(**common_attributes)
-        return Payment(**d)
+    return Payment(**d)
+
+
+def text_or_else(element, else_value='') -> str:
+    if element is not None:
+        return element.text
+    else:
+        return else_value
