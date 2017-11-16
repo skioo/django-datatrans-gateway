@@ -35,9 +35,8 @@ def pay_with_alias_form(request, alias_registration_id):
                 alias_registration_id=alias_registration_id,
                 client_ref=form.cleaned_data['client_ref'],
             )
-            # As confirmation we just take the user to the detail page of the payment.
-            payment_detail_url = reverse('admin:datatrans_payment_change', args=(result.id,))
-            return HttpResponseRedirect(payment_detail_url)
+            # As confirmation we take the user to the detail page of the payment.
+            return HttpResponseRedirect(reverse('admin:datatrans_payment_change', args=[result.id]))
     else:
         form = PayWithAliasForm()
 
@@ -82,10 +81,10 @@ class AliasRegistrationAdmin(admin.ModelAdmin):
 
     def pay_with_alias_button(self, obj):
         if obj.success:
-            return format_html(
-                '<a class="button" href="{}">Pay with alias</a>',
-                reverse('admin:datatrans_alias_pay', args=[obj.pk]),
-            )
+            return format_html('<a class="button" href="{}">Pay with alias</a>',
+                               reverse('admin:datatrans_alias_pay', args=[obj.pk]))
+        else:
+            return '-'
 
     pay_with_alias_button.short_description = 'Pay with alias'  # type: ignore
 
@@ -101,9 +100,8 @@ def refund_payment_form(request, payment_id):
             result = refund(
                 amount=form.cleaned_data['amount'],
                 payment_id=payment_id)
-            # As confirmation we just take the user to the edit page of the refund.
-            refund_detail_url = reverse('admin:datatrans_refund_change', args=(result.id,))
-            return HttpResponseRedirect(refund_detail_url)
+            # As confirmation we take the user to the edit page of the refund.
+            return HttpResponseRedirect(reverse('admin:datatrans_refund_change', args=[result.id]))
     else:
         form = RefundPaymentForm()
 
@@ -149,10 +147,10 @@ class PaymentAdmin(admin.ModelAdmin):
 
     def refund_button(self, obj):
         if obj.success:
-            return format_html(
-                '<a class="button" href="{}">Refund</a>',
-                reverse('admin:datatrans_payment_refund', args=[obj.pk]),
-            )
+            return format_html('<a class="button" href="{}">Refund</a>',
+                               reverse('admin:datatrans_payment_refund', args=[obj.pk]))
+        else:
+            return '-'
 
     refund_button.short_description = 'Refund'  # type: ignore
 
