@@ -56,7 +56,7 @@ def pay_with_alias_form(request, alias_registration_id):
 @admin.register(AliasRegistration)
 class AliasRegistrationAdmin(admin.ModelAdmin):
     date_hierarchy = 'created'
-    readonly_fields = ['created', 'expiry_date', 'pay_with_alias_button']
+    readonly_fields = ['created', 'modified', 'expiry_date', 'pay_with_alias_button']
     list_display = [
         'transaction_id', 'created', 'success', 'client_ref', amount, 'payment_method', 'card_alias',
         'masked_card_number', expiry,
@@ -121,7 +121,7 @@ def refund_payment_form(request, payment_id):
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
     date_hierarchy = 'created'
-    readonly_fields = ['created']
+    readonly_fields = ['created', 'modified']
     list_display = [
         'transaction_id', 'created', 'success', 'client_ref', amount, 'payment_method', 'card_alias',
         'masked_card_number', expiry,
@@ -158,7 +158,7 @@ class PaymentAdmin(admin.ModelAdmin):
 @admin.register(Refund)
 class RefundAdmin(admin.ModelAdmin):
     date_hierarchy = 'created'
-    readonly_fields = ['created']
+    readonly_fields = ['created', 'modified']
     list_display = [
         'transaction_id', 'payment_transaction_id', 'created', 'success', 'client_ref', amount, 'error_code',
         'error_message']

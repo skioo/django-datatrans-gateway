@@ -29,6 +29,7 @@ class TransactionBase(models.Model):
     """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
     merchant_id = models.CharField(db_index=True, max_length=255)
     transaction_id = models.CharField(unique=True, max_length=18, blank=True, null=True)
     client_ref = models.CharField(db_index=True, max_length=18)
