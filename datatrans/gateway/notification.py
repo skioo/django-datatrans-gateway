@@ -97,23 +97,25 @@ def parse_notification_xml(xml: str) -> Union[AliasRegistration, Payment]:
     use_alias_parameter = get_named_parameter('useAlias')
     if use_alias_parameter is not None and use_alias_parameter.text == 'true':
         # It's an alias registration
-        register_alias_attributes = dict(
-            masked_card_number=get_named_parameter('maskedCC').text,
-            card_alias=get_named_parameter('aliasCC').text,
-        )
+
+        d = dict(parse_common_attributes())
+
+        masked_card_number = get_named_parameter('maskedCC')
+        if masked_card_number is not None:
+            d['masked_card_number'] = masked_card_number.text
+
+        card_alias = get_named_parameter('aliasCC')
+        if card_alias is not None:
+            d['card_alias'] = card_alias.text
 
         if success():
-            d = dict(success=True)
-            d.update(register_alias_attributes)
-            d.update(parse_common_attributes())
+            d['success'] = True
             d.update(parse_success())
-            return AliasRegistration(**d)
         else:
-            d = dict(success=False)
-            d.update(register_alias_attributes)
-            d.update(parse_common_attributes())
+            d['success'] = False
             d.update(parse_error())
-            return AliasRegistration(**d)
+
+        return AliasRegistration(**d)
     else:
         # It's a payment or a charge
         if success():

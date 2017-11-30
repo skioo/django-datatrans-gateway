@@ -1,6 +1,6 @@
 import calendar
-from datetime import date
 import uuid
+from datetime import date
 
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -81,8 +81,8 @@ class TransactionBase(models.Model):
 
 class AliasRegistration(TransactionBase):
     transaction_id = models.CharField(unique=True, max_length=18)
-    card_alias = models.CharField(db_index=True, max_length=20)
-    masked_card_number = models.CharField(max_length=255)
+    card_alias = models.CharField(db_index=True, max_length=20, blank=True)
+    masked_card_number = models.CharField(max_length=255, blank=True)
     payment_method = models.CharField(db_index=True, max_length=3)
     expiry_month = models.IntegerField(validators=expiry_month_validators)
     expiry_year = models.IntegerField(validators=expiry_year_validators)

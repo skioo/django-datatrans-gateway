@@ -11,6 +11,6 @@ def assertModelEqual(o1: Any, o2: Any):
     """
     for k in vars(o1).keys():
         if k not in EXCLUDED:
-            v2 = getattr(o2, k)
             v1 = getattr(o1, k)
+            v2 = getattr(o2, k)
             assert v1 == v2, "o['{}']: {} != {}".format(k, v1, v2)

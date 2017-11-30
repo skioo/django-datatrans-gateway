@@ -158,6 +158,50 @@ class ParseRegisterAliasTest(TestCase):
         parsed = parse_notification_xml(xml)
         assertModelEqual(expected, parsed)
 
+    def test_card_number_and_alias_are_not_always_present(self):
+        xml = """<?xml version="1.0" encoding="UTF-8"?>
+<uppTransactionService version="1">
+  <body merchantId="1111111111" testOnly="yes">
+    <transaction refno="1234" status="error">
+      <uppTransactionId>170710155947695609</uppTransactionId>
+      <amount>0</amount>
+      <currency>CHF</currency>
+      <pmethod>ECA</pmethod>
+      <reqtype>CAA</reqtype>
+      <language>no</language>
+      <error>
+        <errorCode>1403</errorCode>
+        <errorMessage>declined</errorMessage>
+        <errorDetail>card declined in test mode</errorDetail>
+      </error>
+      <userParameters>
+        <parameter name="sign">redacted</parameter>
+        <parameter name="expy">19</parameter>
+        <parameter name="uppWebResponseMethod">GET</parameter>
+        <parameter name="theme">DT2015</parameter>
+        <parameter name="expm">11</parameter>
+        <parameter name="useAlias">true</parameter>
+      </userParameters>
+    </transaction>
+  </body>
+</uppTransactionService>
+        """
+        expected = AliasRegistration(
+            success=False,
+            transaction_id='170710155947695609',
+            merchant_id='1111111111',
+            request_type='CAA',
+            expiry_month=11,
+            expiry_year=19,
+            client_ref='1234',
+            amount=Money(0, 'CHF'),
+            payment_method='ECA',
+            error_code='1403',
+            error_message='declined',
+            error_detail='card declined in test mode')
+        parsed = parse_notification_xml(xml)
+        assertModelEqual(expected, parsed)
+
 
 class ParsePaymentTest(TestCase):
     def test_success(self):

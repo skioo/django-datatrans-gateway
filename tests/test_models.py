@@ -30,6 +30,24 @@ class AliasRegistrationModelTest(TestCase):
         alias_registration.save()
         assert alias_registration.expiry_date == date(2018, 12, 31)
 
+    def test_minimal_fields(self):
+        alias_registration = AliasRegistration(
+            success=False,
+            transaction_id='170710155947695609',
+            merchant_id='1111111111',
+            request_type='CAA',
+            expiry_month=11,
+            expiry_year=19,
+            client_ref='1234',
+            amount=Money(0, 'CHF'),
+            payment_method='ECA',
+            error_code='1403',
+            error_message='declined',
+            error_detail='card declined in test mode',
+        )
+        alias_registration.full_clean()
+        alias_registration.save()
+
 
 class PaymentModelTest(TestCase):
     def test_pointspay(self):
