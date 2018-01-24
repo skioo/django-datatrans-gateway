@@ -94,6 +94,7 @@ class RefundPaymentForm(forms.Form):
 
 
 def refund_payment_form(request, payment_id):
+    payment = get_object_or_404(Payment, pk=payment_id)
     if request.method == 'POST':
         form = RefundPaymentForm(request.POST)
         if form.is_valid():
@@ -103,15 +104,14 @@ def refund_payment_form(request, payment_id):
             # As confirmation we take the user to the edit page of the refund.
             return HttpResponseRedirect(reverse('admin:datatrans_refund_change', args=[result.id]))
     else:
-        form = RefundPaymentForm()
-
-    payment = get_object_or_404(Payment, pk=payment_id)
+        form = RefundPaymentForm(initial={'amount': payment.amount})
 
     return render(
         request,
         'admin/datatrans/form.html',
         {
-            'title': 'Refund for original payment of {}, with {}'.format(payment.amount, payment.masked_card_number),
+            'title': 'Refund to {} {}, for original payment of {}'.format(payment.payment_method,
+                                                                          payment.masked_card_number, payment.amount),
             'form': form,
             'opts': Payment._meta,  # Used to setup the navigation / breadcrumbs of the page
         }
