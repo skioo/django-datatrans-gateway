@@ -64,6 +64,64 @@ class ParseRegisterAliasTest(TestCase):
         parsed = parse_notification_xml(xml)
         assertModelEqual(expected, parsed)
 
+    def test_empty_response_code(self):
+        """ This happens with myone cards."""
+        xml = """<?xml version="1.0" encoding="UTF-8"?>
+<uppTransactionService version="1">
+  <body merchantId="1111111111" testOnly="yes">
+    <transaction refno="b0ca4cf0-7955-4eb3-978b-936194c8fe23" status="success">
+      <uppTransactionId>170707111922838874</uppTransactionId>
+      <amount>0</amount>
+      <currency>CHF</currency>
+      <pmethod>VIS</pmethod>
+      <reqtype>CAA</reqtype>
+      <success>
+        <authorizationCode>953988933</authorizationCode>
+        <acqAuthorizationCode>111953</acqAuthorizationCode>
+        <responseMessage>check successful</responseMessage>
+        <responseCode></responseCode>
+      </success>
+      <userParameters>
+        <parameter name="maskedCC">424242xxxxxx4242</parameter>
+        <parameter name="sign">redacted</parameter>
+        <parameter name="aliasCC">70119122433810042</parameter>
+        <parameter name="responseCode">01</parameter>
+        <parameter name="mode">lightbox</parameter>
+        <parameter name="sign2">6b8f6adfe37bf8ab331e7576563395647c59350270b4d38b60aa4903f9018030</parameter>
+        <parameter name="expy">18</parameter>
+        <parameter name="returnCustomerCountry">CHE</parameter>
+        <parameter name="theme">DT2015</parameter>
+        <parameter name="uppReturnTarget">_top</parameter>
+        <parameter name="expm">12</parameter>
+        <parameter name="version">1.0.2</parameter>
+        <parameter name="cardno">424242xxxxxx4242</parameter>
+        <parameter name="useAlias">true</parameter>
+      </userParameters>
+    </transaction>
+  </body>
+</uppTransactionService>
+        """
+
+        expected = AliasRegistration(
+            success=True,
+            transaction_id='170707111922838874',
+            merchant_id='1111111111',
+            request_type='CAA',
+            masked_card_number='424242xxxxxx4242',
+            card_alias='70119122433810042',
+            expiry_month=12,
+            expiry_year=18,
+            client_ref='b0ca4cf0-7955-4eb3-978b-936194c8fe23',
+            amount=Money(0, 'CHF'),
+            payment_method='VIS',
+            credit_card_country='CHE',
+            response_message='check successful',
+            authorization_code='953988933',
+            acquirer_authorization_code='111953',
+        )
+        parsed = parse_notification_xml(xml)
+        assertModelEqual(expected, parsed)
+
     def test_wrong_sign2(self):
         xml = """<?xml version="1.0" encoding="UTF-8"?>
 <uppTransactionService version="1">

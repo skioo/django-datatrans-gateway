@@ -43,12 +43,13 @@ def parse_notification_xml(xml: str) -> Union[AliasRegistration, Payment]:
             raise ValueError('sign2 did not match computed signature')
 
         success = transaction.find('success')
-        return dict(
+        d = dict(
             response_code=success.find('responseCode').text,
             response_message=success.find('responseMessage').text,
             authorization_code=success.find('authorizationCode').text,
             acquirer_authorization_code=success.find('acqAuthorizationCode').text,
         )
+        return {k: v for k, v in d.items() if v is not None}
 
     def parse_error():
         error = transaction.find('error')
@@ -61,7 +62,7 @@ def parse_notification_xml(xml: str) -> Union[AliasRegistration, Payment]:
         if acquirer_error_code is not None:
             d['acquirer_error_code'] = acquirer_error_code.text
 
-        return d
+        return {k: v for k, v in d.items() if v is not None}
 
     def parse_common_attributes():
         d = dict(

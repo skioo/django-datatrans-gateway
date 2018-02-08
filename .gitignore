@@ -10,6 +10,7 @@ __pycache__
 .cache
 .mypy_cache
 test.db
+.pytest_cache/
 
 # Intellij idea
 .idea
