@@ -121,7 +121,6 @@ def refund_payment_form(request, payment_id):
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
     date_hierarchy = 'created'
-    readonly_fields = ['created', 'modified']
     list_display = [
         'transaction_id', 'created', 'success', 'client_ref', amount, 'payment_method', 'card_alias',
         'masked_card_number', expiry,
@@ -133,6 +132,8 @@ class PaymentAdmin(admin.ModelAdmin):
     list_filter = ['success', 'payment_method', 'credit_card_country',
                    ('amount_currency', admin.AllValuesFieldListFilter)]
     ordering = ['-created']
+
+    readonly_fields = ['created', 'modified', 'refund_button']
 
     def get_urls(self):
         urls = super().get_urls()
