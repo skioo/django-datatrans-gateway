@@ -1,12 +1,12 @@
 from xml.etree.ElementTree import Element, SubElement, tostring
 
+import requests
 from defusedxml.ElementTree import fromstring
 from moneyed import Money
-import requests
 from structlog import get_logger
 
 from .xml_helpers import money_to_amount_and_currency, parse_money
-from ..config import datatrans_processor_url, sign_web, web_merchant_id
+from ..config import datatrans_processor_url, sign_web
 from ..models import Payment, Refund
 
 logger = get_logger()
@@ -37,8 +37,9 @@ def refund(amount: Money, payment_id: str) -> Refund:
     client_ref = '{}-r'.format(payment.client_ref)
 
     request_xml = build_refund_request_xml(amount=amount,
+                                           original_transaction_id=payment.transaction_id,
                                            client_ref=client_ref,
-                                           original_transaction_id=payment.transaction_id)
+                                           merchant_id=payment.merchant_id)
 
     logger.info('sending-refund-request', url=datatrans_processor_url, data=request_xml)
 
@@ -56,8 +57,7 @@ def refund(amount: Money, payment_id: str) -> Refund:
     return refund_response
 
 
-def build_refund_request_xml(amount: Money, client_ref: str, original_transaction_id: str) -> bytes:
-    merchant_id = web_merchant_id
+def build_refund_request_xml(amount: Money, client_ref: str, original_transaction_id: str, merchant_id: str) -> bytes:
     client_ref = client_ref
 
     root = Element('paymentService')

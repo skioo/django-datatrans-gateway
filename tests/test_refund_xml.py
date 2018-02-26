@@ -11,10 +11,11 @@ class BuildRefundRequestTest(TestCase):
         xml = build_refund_request_xml(
             amount=Money(123, "CHF"),
             client_ref='abcdef',
-            original_transaction_id='12345'
+            original_transaction_id='12345',
+            merchant_id='1234567'
         )
         expected = """<?xml version='1.0' encoding='utf8'?>
-<paymentService version="1"><body merchantId="1111111111"><transaction refno="abcdef"><request><amount>12300</amount><currency>CHF</currency><uppTransactionId>12345</uppTransactionId><transtype>06</transtype><sign>18a44815e3aedb09419e22b9dfcecccbdee99925f51e40fa519082badbf5e2dc</sign></request></transaction></body></paymentService>"""  # noqa
+<paymentService version="1"><body merchantId="1234567"><transaction refno="abcdef"><request><amount>12300</amount><currency>CHF</currency><uppTransactionId>12345</uppTransactionId><transtype>06</transtype><sign>cae361426f625bbe03a9ef0ef3c4daf27a7e16547191ec7b704cb1337d43fe22</sign></request></transaction></body></paymentService>"""  # noqa
         assert xml.decode() == expected
 
 
