@@ -24,8 +24,8 @@ the receiver should check the `success` flag received with the signal.
 Requirements
 ------------
 
-* Python: 3.4 and over
-* Django: 1.10 and over
+* Python: 3.5 and over
+* Django: 2.0 and over
 
 
 Usage
@@ -60,7 +60,19 @@ In your settings.py, enter the configuration for your web and mpo merchants. For
 Troubleshooting
 ---------------
 
-The first thing the code does when it receives a notification is logging a `datatrans-notification` event with structlog.
-
 If you don't see a payment (or a payment error) in the database, and you are sure you've properly configured the callback in the upp,
-then start by looking in the log for a `datatrans-notification`
+then start by looking in the log for a `datatrans-notification`.
+
+
+Development
+-----------
+
+To install all dependencies:
+
+    python setup.py develop
+
+To run tests:
+
+    pip install pytest-django
+    pytest
+

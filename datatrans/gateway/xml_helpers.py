@@ -1,8 +1,8 @@
 from decimal import Decimal
+from typing import Tuple
 from xml.etree.ElementTree import Element
 
 from moneyed import Money
-from typing import Tuple
 
 
 def money_to_amount_and_currency(money: Money) -> Tuple[int, str]:
@@ -13,6 +13,6 @@ def money_to_amount_and_currency(money: Money) -> Tuple[int, str]:
 
 def parse_money(e: Element) -> Money:
     return Money(
-        amount=Decimal(e.find('amount').text) / 100,
-        currency=e.find('currency').text
+        amount=Decimal(e.find('amount').text) / 100,  # type: ignore
+        currency=e.find('currency').text  # type: ignore
     )
