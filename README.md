@@ -24,7 +24,7 @@ the receiver should check the `success` flag received with the signal.
 Requirements
 ------------
 
-* Python: 3.5 and over
+* Python: 3.6 and over
 * Django: 2.0 and over
 
 

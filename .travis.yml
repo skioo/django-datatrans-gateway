@@ -1,29 +1,32 @@
+dist: xenial
+
+sudo: false
+
 language: python
-matrix:
+
+python:
+  - 3.6
+  - 3.7
+
+install: pip install tox-travis
+
+script: tox
+
+stages:
+  - test
+  - name: deploy
+    if: tag IS present
+
+jobs:
   include:
-  - python: '3.5'
-    env: TOXENV=py35-django20-test
-  - python: '3.6'
-    env: TOXENV=py36-django20-test
-  - python: '3.5'
-    env: TOXENV=py35-django21-test
-  - python: '3.6'
-    env: TOXENV=py36-django21-test
-  - python: '3.6'
-    env: TOXENV=py36-django21-checkmigrations
-  - python: '3.6'
-    env: TOXENV=py36-django21-flake
-  - python: '3.6'
-    env: TOXENV=py36-django21-mypy
-install:
-- pip install tox
-script:
-- tox
-deploy:
-  provider: pypi
-  user: skioo
-  password:
-    secure: LqiszgQdVLFAsM7J//wa9xCclsvQUSUi/5qaIzQOh081jwUWdRE9/wWl6kRPffLPacpx/yigTpkvnoicqX+1tjKaeKiQX/30vsfzevP2+byKnVG4cL9t5dx3OkHR767aXFj+NRlpuktDaD0wot7QidEWVJPE2/xKtOybtTpJrdFahesa1CzPv7/9vJXqtQ9xZ/lCUi7pmhGpIiV91z9hD+P1TvBlKD+iJ/VE4Va2S8iAHrlNMiK5hcJSCOIFG3gr+coD0y3t84Iv4otgJ7Sfu3qRP/17isnK9iNAYRgDxeIZq6pgQkOdJAzQRQ/NUAhgWKFW0tMxeTzFmDzOXSxgxgGT8d3jGu3tmAdeYch4RNVwBcrEJ/KcPtWS1Dpr/fkcwOXHehZlbbUQ8uHf08VGZlOb+mD8oHnMz5acQQPGk7quY2IJubtE1ZHHqe31PY8xBkij049iGVTaiXhBHypTxkU4lr2RDGFbNkmp10FCQgNZNBWh6lRbkzPXrACcQqdv6xP+OiHNbVEBUGw/us8OR1ykkjGKA+IYSedyt1ohrMSCSKR3ZJLW4NrrheLaeaTEzbmPmF32tqcBJeU5Lal1axqdezQyjDSUPeZTm9DB4g6Wpo9GAqJXQcQCorg4PQsMcNO0gTelD7Mz0CguW/RhWuLvTLLjOF2fP3ptkfCiRBc=
-  distribution: sdist bdist_wheel
-  on:
-    tags: true
+    - stage: deploy
+      install: skip
+      script: skip
+      deploy:
+        provider: pypi
+        user: skioo
+        password:
+          secure: LqiszgQdVLFAsM7J//wa9xCclsvQUSUi/5qaIzQOh081jwUWdRE9/wWl6kRPffLPacpx/yigTpkvnoicqX+1tjKaeKiQX/30vsfzevP2+byKnVG4cL9t5dx3OkHR767aXFj+NRlpuktDaD0wot7QidEWVJPE2/xKtOybtTpJrdFahesa1CzPv7/9vJXqtQ9xZ/lCUi7pmhGpIiV91z9hD+P1TvBlKD+iJ/VE4Va2S8iAHrlNMiK5hcJSCOIFG3gr+coD0y3t84Iv4otgJ7Sfu3qRP/17isnK9iNAYRgDxeIZq6pgQkOdJAzQRQ/NUAhgWKFW0tMxeTzFmDzOXSxgxgGT8d3jGu3tmAdeYch4RNVwBcrEJ/KcPtWS1Dpr/fkcwOXHehZlbbUQ8uHf08VGZlOb+mD8oHnMz5acQQPGk7quY2IJubtE1ZHHqe31PY8xBkij049iGVTaiXhBHypTxkU4lr2RDGFbNkmp10FCQgNZNBWh6lRbkzPXrACcQqdv6xP+OiHNbVEBUGw/us8OR1ykkjGKA+IYSedyt1ohrMSCSKR3ZJLW4NrrheLaeaTEzbmPmF32tqcBJeU5Lal1axqdezQyjDSUPeZTm9DB4g6Wpo9GAqJXQcQCorg4PQsMcNO0gTelD7Mz0CguW/RhWuLvTLLjOF2fP3ptkfCiRBc=
+        distribution: sdist bdist_wheel
+        on:
+          tags: true
