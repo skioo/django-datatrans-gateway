@@ -156,14 +156,23 @@ class PaymentAdmin(admin.ModelAdmin):
     refund_button.short_description = 'Refund'  # type: ignore
 
 
+def link_to_payment(obj):
+    url = reverse('admin:datatrans_payment_changelist')
+    return format_html(f'<a href="{url}?q={obj.payment_transaction_id}">{obj.payment_transaction_id}</a>')
+
+
+link_to_payment.admin_order_field = 'payment_transaction_id'  # type: ignore
+link_to_payment.short_description = 'Original payment'  # type: ignore
+
+
 @admin.register(Refund)
 class RefundAdmin(admin.ModelAdmin):
     date_hierarchy = 'created'
     readonly_fields = ['created', 'modified']
     list_display = [
-        'transaction_id', 'payment_transaction_id', 'created', 'success', 'client_ref', amount, 'error_code',
+        'transaction_id', link_to_payment, 'created', 'success', 'client_ref', amount, 'error_code',
         'error_message']
-    list_display_links = ['transaction_id', 'payment_transaction_id']
+    list_display_links = ['transaction_id']
 
     search_fields = [
         'transaction_id', 'payment_transaction_id', 'created', 'client_ref', 'amount', 'response_code',
