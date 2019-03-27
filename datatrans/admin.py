@@ -126,7 +126,8 @@ class PaymentAdmin(admin.ModelAdmin):
         'masked_card_number', expiry,
         'credit_card_country', 'error_code', 'refund_button']
     search_fields = [
-        'transaction_id', 'created', 'expiry_date', 'payment_method', 'card_alias', 'masked_card_number', 'amount',
+        'id', 'transaction_id', 'created', 'expiry_date', 'payment_method', 'card_alias', 'masked_card_number',
+        'amount',
         'expiry_month', 'expiry_year', 'credit_card_country', 'client_ref', 'response_code',
         'authorization_code', 'acquirer_authorization_code', 'error_code', 'error_message', 'error_detail']
     list_filter = ['success', 'payment_method', 'credit_card_country',
@@ -134,6 +135,11 @@ class PaymentAdmin(admin.ModelAdmin):
     ordering = ['-created']
 
     readonly_fields = ['created', 'modified', 'refund_button']
+
+    def get_search_results(self, request, queryset, search_term):
+        """ Allow searching by hyphenated uuid. """
+        search_term = search_term.replace('-', '')
+        return super().get_search_results(request, queryset, search_term)
 
     def get_urls(self):
         urls = super().get_urls()
