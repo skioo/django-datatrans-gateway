@@ -23,7 +23,7 @@ setup(
         'templates/datatrans/example/*.html',
     ]},
     install_requires=[
-        'Django>=2.0,<2.2',
+        'Django>=2.0',
         'django-money',
         'requests',
         'defusedxml',
@@ -36,6 +36,7 @@ setup(
         'Environment :: Web Environment',
         'Framework :: Django :: 2.0',
         'Framework :: Django :: 2.1',
+        'Framework :: Django :: 2.2',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',

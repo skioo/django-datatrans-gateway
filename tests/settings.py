@@ -9,22 +9,21 @@ DATABASES = {
 
 SECRET_KEY = 'django_datatrans_tests_secret_key'
 
-# To get rid of RemovedInDjango20Warning
-MIDDLEWARE = []  # type: ignore
-
-# Use a fast hasher to speed up tests.
-PASSWORD_HASHERS = [
-    'django.contrib.auth.hashers.MD5PasswordHasher',
-]
-
 INSTALLED_APPS = [
     'django.contrib.auth',
+    'django.contrib.messages',
     'django.contrib.contenttypes',
     'django.contrib.staticfiles',
     'django.contrib.sessions',
     'django.contrib.admin',
     'tests',
     'datatrans',
+]
+
+MIDDLEWARE = [
+     'django.contrib.sessions.middleware.SessionMiddleware',
+     'django.contrib.auth.middleware.AuthenticationMiddleware',
+     'django.contrib.messages.middleware.MessageMiddleware',
 ]
 
 STATIC_URL = '/static/'
@@ -43,6 +42,7 @@ TEMPLATES = [
                 'django.template.context_processors.i18n',
                 'django.template.context_processors.request',
                 'django.template.context_processors.static',
+                'django.contrib.messages.context_processors.messages',
             ],
         },
     },
