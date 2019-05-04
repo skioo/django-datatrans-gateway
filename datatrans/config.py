@@ -14,7 +14,7 @@ if settings.DATATRANS.get('ENVIRONMENT') == 'PRODUCTION':
 else:
     _base_url = 'https://pilot.datatrans.biz/'
 
-datatrans_js_url = os.path.join(_base_url, 'upp/payment/js/datatrans-1.0.2.js')
+datatrans_js_url = os.path.join(_base_url, 'upp/payment/js/datatrans-2.0.0.min.js')
 datatrans_authorize_url = os.path.join(_base_url, 'upp/jsp/XML_authorize.jsp')
 datatrans_processor_url = os.path.join(_base_url, 'upp/jsp/XML_processor.jsp')
 
