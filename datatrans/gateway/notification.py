@@ -2,7 +2,7 @@ from defusedxml.ElementTree import fromstring
 from structlog import get_logger
 from typing import Union
 
-from .xml_helpers import parse_money
+from .money_xml_converters import parse_money
 from ..config import sign_web
 from ..models import AliasRegistration, Payment
 
@@ -19,7 +19,7 @@ def handle_notification(xml: str) -> None:
 def parse_notification_xml(xml: str) -> Union[AliasRegistration, Payment]:
     """"
     Both alias registration and payments are received here.
-    We can differentiate them by looking at the use-alias user-parameter (and verifying the amount is o).
+    We can differentiate them by looking at the use-alias user-parameter (and verifying the amount is 0).
 
     """
     body = fromstring(xml).find('body')

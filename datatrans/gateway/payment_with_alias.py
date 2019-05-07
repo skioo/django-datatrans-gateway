@@ -5,7 +5,7 @@ from moneyed import Money
 import requests
 from structlog import get_logger
 
-from .xml_helpers import money_to_amount_and_currency, parse_money
+from .money_xml_converters import money_to_amount_and_currency, parse_money
 from ..config import datatrans_authorize_url, mpo_merchant_id, sign_mpo
 from ..models import AliasRegistration, Payment
 

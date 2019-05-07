@@ -4,7 +4,7 @@ from moneyed import Money
 from datatrans.gateway import PaymentParameters, build_payment_parameters, build_register_credit_card_parameters
 
 
-class PaymentTest(TestCase):
+class PaymentParametersTest(TestCase):
     def test_it_should_generate_payment_parameters(self):
         parameters = build_payment_parameters(amount=Money(8.50, 'CHF'), client_ref='91827364')
         expected = PaymentParameters(
@@ -17,8 +17,6 @@ class PaymentTest(TestCase):
         )
         assert parameters == expected
 
-
-class RegisterCreditCardTest(TestCase):
     def test_it_should_generate_register_credit_card_parameters(self):
         parameters = build_register_credit_card_parameters(client_ref='someref')
         expected = PaymentParameters(

@@ -5,7 +5,7 @@ from defusedxml.ElementTree import fromstring
 from moneyed import Money
 from structlog import get_logger
 
-from .xml_helpers import money_to_amount_and_currency, parse_money
+from .money_xml_converters import money_to_amount_and_currency, parse_money
 from ..config import datatrans_processor_url, sign_web
 from ..models import Payment, Refund
 

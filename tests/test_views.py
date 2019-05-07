@@ -50,6 +50,16 @@ class ExampleViewsTest(TestCase):
         response = Client().get(reverse('example_register_credit_card'))
         assert response.status_code == 200
 
+    def test_it_should_process_form_for_the_example_register_credit_card_page(self):
+        response = Client().post(reverse('example_register_credit_card'),
+                                 {'client_ref': 'a ref'})
+        assert response.status_code == 200
+
     def test_it_should_show_a_form_for_the_example_pay_page(self):
         response = Client().get(reverse('example_pay'))
+        assert response.status_code == 200
+
+    def test_it_should_process_form_for_the_example_pay_page(self):
+        response = Client().post(reverse('example_pay'),
+                                 {'amount_0': 1, 'amount_1': 'CHF', 'client_ref': 'a ref'})
         assert response.status_code == 200

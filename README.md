@@ -16,8 +16,9 @@ Supports:
 
 
 This implementation:
-- Handles the exchanges with datatrans, including the signing of requests and the verification of the signature of notifications.
-- Introduces persistent models for AliasRegistration, Payment, and Refund. These models record all exchanges with datatrans.
+- Handles the exchanges with datatrans, including the signing of requests and the verification of the signature of notifications. All exchanges are logged as structured events, to make auditing easy.
+- Introduces persistent models for AliasRegistration, Payment, and Refund. Both successes and failures are stored.
+- Offers a rich admin interface, allowing ad-hoc payments using registered credit cards, as well as refunds. 
 - Sends signals whenever an AliasRegistration, Payment, or Refund is done. The signal is sent even if the operation failed, 
 the receiver should check the `success` flag received with the signal.
 
@@ -46,7 +47,7 @@ Include `datatrans-urls` to the urlpatterns in your urls.py, for instance:
         url(r'^datatrans/', include('datatrans.urls')),
     ]
 
-Configure the callback url in your upp
+Configure the callback url in the datatrans UPP Administration page.
 
 In your settings.py, enter the configuration for your web and mpo merchants. For instance:
 

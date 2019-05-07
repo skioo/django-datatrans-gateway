@@ -142,6 +142,7 @@ class RefundModelTest(TestCase):
             error_message='access denied',
             error_detail='incorrect merchantId',
         )
+        refund1.full_clean()
         refund1.save()
 
         refund2 = Refund(
@@ -155,4 +156,5 @@ class RefundModelTest(TestCase):
             error_message='access denied',
             error_detail='incorrect merchantId',
         )
+        refund2.full_clean()
         refund2.save()

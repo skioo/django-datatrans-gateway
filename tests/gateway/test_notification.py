@@ -3,7 +3,7 @@ from moneyed import Money
 
 from datatrans.gateway.notification import parse_notification_xml
 from datatrans.models import AliasRegistration, Payment
-from .utils import assertModelEqual
+from .assertions import assertModelEqual
 
 
 class ParseRegisterAliasTest(TestCase):
@@ -41,8 +41,7 @@ class ParseRegisterAliasTest(TestCase):
       </userParameters>
     </transaction>
   </body>
-</uppTransactionService>
-    """
+</uppTransactionService>"""
         expected = AliasRegistration(
             success=True,
             transaction_id='170707111922838874',
@@ -99,9 +98,7 @@ class ParseRegisterAliasTest(TestCase):
       </userParameters>
     </transaction>
   </body>
-</uppTransactionService>
-        """
-
+</uppTransactionService>"""
         expected = AliasRegistration(
             success=True,
             transaction_id='170707111922838874',
@@ -156,8 +153,7 @@ class ParseRegisterAliasTest(TestCase):
       </userParameters>
     </transaction>
   </body>
-</uppTransactionService>
-    """
+</uppTransactionService>"""
         with self.assertRaises(ValueError):
             parse_notification_xml(xml)
 
@@ -192,8 +188,7 @@ class ParseRegisterAliasTest(TestCase):
       </userParameters>
     </transaction>
   </body>
-</uppTransactionService>
-        """
+</uppTransactionService>"""
         expected = AliasRegistration(
             success=False,
             transaction_id='170710155947695609',
@@ -242,8 +237,7 @@ class ParseRegisterAliasTest(TestCase):
       </userParameters>
     </transaction>
   </body>
-</uppTransactionService>
-        """
+</uppTransactionService>"""
         expected = AliasRegistration(
             success=False,
             transaction_id='170710155947695609',
@@ -293,8 +287,7 @@ class ParsePaymentTest(TestCase):
       </userParameters>
     </transaction>
   </body>
-</uppTransactionService>
-        """
+</uppTransactionService>"""
         expected = Payment(
             success=True,
             transaction_id='170719094930353253',
@@ -396,8 +389,7 @@ class ParsePaymentTest(TestCase):
       </userParameters>
     </transaction>
   </body>
-</uppTransactionService>
-"""
+</uppTransactionService>"""
         expected = Payment(
             success=False,
             transaction_id='170720154219033737',

@@ -3,7 +3,7 @@ from moneyed import Money
 
 from datatrans.gateway.refunding import build_refund_request_xml, parse_refund_response_xml
 from datatrans.models import Refund
-from .utils import assertModelEqual
+from .assertions import assertModelEqual
 
 
 class BuildRefundRequestTest(TestCase):
@@ -111,8 +111,7 @@ class ParseRefundResponseTest(TestCase):
       </error>
     </transaction>
   </body>
-</paymentService>
-        """
+</paymentService>"""
         expected = Refund(
             success=False,
             merchant_id='2222222222',

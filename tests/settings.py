@@ -17,7 +17,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.admin',
     'tests',
-    'datatrans',
+    'datatrans.apps.DatatransConfig',
 ]
 
 MIDDLEWARE = [

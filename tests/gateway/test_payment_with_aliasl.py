@@ -3,10 +3,10 @@ from moneyed import Money
 
 from datatrans.gateway.payment_with_alias import build_pay_with_alias_request_xml, parse_pay_with_alias_response_xml
 from datatrans.models import AliasRegistration, Payment
-from .utils import assertModelEqual
+from .assertions import assertModelEqual
 
 
-class BuildChargeRequestTest(TestCase):
+class BuildPayWithAliasRequestTest(TestCase):
     def test_build_request(self):
         xml = build_pay_with_alias_request_xml(
             amount=Money(123, "CHF"),
@@ -34,7 +34,7 @@ class BuildChargeRequestTest(TestCase):
         assert xml.decode() == expected
 
 
-class ParseChargeResponseTest(TestCase):
+class ParsePayWithAliasResponseTest(TestCase):
     def test_success(self):
         response = """<?xml version='1.0' encoding='utf8'?>
 <authorizationService version='3'>
