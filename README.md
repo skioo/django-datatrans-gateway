@@ -10,7 +10,7 @@ django-datatrans-gateway
 A django integration for the datatrans payment gateway.
 
 Supports:
-- Direct payment by the user
+- Direct payment by the user.
 - Registration of a credit card alias by the user, followed by one or more charges (without the user being present).
 - Refund (total or partial) of a previous successful charge.
 
@@ -73,8 +73,19 @@ To install all dependencies:
 
     pip install -e .
 
+
 To run tests:
 
     pip install pytest-django
     pytest
 
+
+To lint, typecheck, test, and verify you didn't forget to create a migration:
+
+    pip install tox
+    tox
+
+
+To install the version being developed into another django project:
+
+    pip install -e <path-to-this-directory>
