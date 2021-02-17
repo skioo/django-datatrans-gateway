@@ -43,10 +43,12 @@ def parse_notification_xml(xml: str) -> Union[AliasRegistration, Payment]:
             raise ValueError('sign2 did not match computed signature')
 
         success = transaction.find('success')
+        authorization_code = success.find('authorizationCode')
         d = dict(
             response_code=success.find('responseCode').text,
             response_message=success.find('responseMessage').text,
-            authorization_code=success.find('authorizationCode').text,
+            # Looks like authorizationCode is not always returned by Datatrans
+            authorization_code=authorization_code.text if authorization_code is not None else None,
             acquirer_authorization_code=success.find('acqAuthorizationCode').text,
         )
         return {k: v for k, v in d.items() if v is not None}
