@@ -71,6 +71,15 @@ def build_pay_with_alias_request_xml(amount: Money, client_ref: str, alias_regis
     SubElement(request, 'reqtype').text = 'CAA'
     SubElement(request, 'sign').text = sign_mpo(merchant_id, amount, currency, client_ref)
 
+    # For non credit card payment methods who support the creation of an alias
+    # the <pmethod> attribute needs to be submitted. Additionally, expm and expy
+    # are not needed.
+    # https://api-reference.datatrans.ch/xml/#authorization-with-an-existing-alias
+    if alias_registration.payment_method in ('REK',):
+        SubElement(request, 'pmethod').text = alias_registration.payment_method
+        request.remove('expm')
+        request.remove('expy')
+
     return tostring(root, encoding='utf8')
 
 
