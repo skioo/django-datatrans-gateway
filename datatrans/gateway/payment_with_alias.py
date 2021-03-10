@@ -103,7 +103,7 @@ def parse_pay_with_alias_response_xml(xml: bytes) -> Payment:
 
         transaction_id = response.find('uppTransactionId').text
         masked_card_number = response.find('maskedCC').text
-        return_customer_country = text_or_else(response.find('returnCustomerCountry')),
+        return_customer_country = text_or_else(response.find('returnCustomerCountry'))
 
         response_code = response.find('responseCode').text
         response_message = response.find('responseMessage').text
