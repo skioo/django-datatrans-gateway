@@ -1,11 +1,12 @@
 from xml.etree.ElementTree import Element, SubElement, tostring
 
+import requests
 from defusedxml.ElementTree import fromstring
 from moneyed import Money
-import requests
 from structlog import get_logger
 
 from .money_xml_converters import money_to_amount_and_currency, parse_money
+from .utils import text_or_else
 from ..config import datatrans_authorize_url, mpo_merchant_id, sign_mpo
 from ..models import AliasRegistration, Payment
 
@@ -102,7 +103,7 @@ def parse_pay_with_alias_response_xml(xml: bytes) -> Payment:
 
         transaction_id = response.find('uppTransactionId').text
         masked_card_number = response.find('maskedCC').text
-        return_customer_country = response.find('returnCustomerCountry').text
+        return_customer_country = text_or_else(response.find('returnCustomerCountry')),
 
         response_code = response.find('responseCode').text
         response_message = response.find('responseMessage').text
@@ -135,9 +136,3 @@ def parse_pay_with_alias_response_xml(xml: bytes) -> Payment:
         d.update(**common_attributes)
     return Payment(**d)
 
-
-def text_or_else(element, else_value='') -> str:
-    if element is not None:
-        return element.text
-    else:
-        return else_value

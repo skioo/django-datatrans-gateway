@@ -3,6 +3,7 @@ from structlog import get_logger
 from typing import Union
 
 from .money_xml_converters import parse_money
+from .utils import text_or_else
 from ..config import sign_web
 from ..models import AliasRegistration, Payment
 
@@ -43,12 +44,10 @@ def parse_notification_xml(xml: str) -> Union[AliasRegistration, Payment]:
             raise ValueError('sign2 did not match computed signature')
 
         success = transaction.find('success')
-        authorization_code = success.find('authorizationCode')
         d = dict(
             response_code=success.find('responseCode').text,
             response_message=success.find('responseMessage').text,
-            # Looks like authorizationCode is not always returned by Datatrans
-            authorization_code=authorization_code.text if authorization_code is not None else None,
+            authorization_code=text_or_else(success.find('authorizationCode')),
             acquirer_authorization_code=success.find('acqAuthorizationCode').text,
         )
         return {k: v for k, v in d.items() if v is not None}
