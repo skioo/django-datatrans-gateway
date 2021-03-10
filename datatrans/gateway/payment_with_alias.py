@@ -135,4 +135,3 @@ def parse_pay_with_alias_response_xml(xml: bytes) -> Payment:
         )
         d.update(**common_attributes)
     return Payment(**d)
-
