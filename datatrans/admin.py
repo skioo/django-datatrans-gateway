@@ -1,9 +1,8 @@
-from django.conf.urls import url
 from django.contrib import admin
 from django.forms import CharField, TextInput, forms
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
-from django.urls import reverse
+from django.urls import re_path, reverse
 from django.utils.html import format_html
 from djmoney.forms import MoneyField
 from moneyed.localization import format_money
@@ -71,7 +70,7 @@ class AliasRegistrationAdmin(admin.ModelAdmin):
     def get_urls(self):
         urls = super().get_urls()
         my_urls = [
-            url(
+            re_path(
                 r'^(?P<alias_registration_id>[0-9a-f-]+)/pay_with_alias/$',
                 self.admin_site.admin_view(pay_with_alias_form),
                 name='datatrans_alias_pay',
@@ -144,7 +143,7 @@ class PaymentAdmin(admin.ModelAdmin):
     def get_urls(self):
         urls = super().get_urls()
         my_urls = [
-            url(
+            re_path(
                 r'^(?P<payment_id>[0-9a-f-]+)/refund/$',
                 self.admin_site.admin_view(refund_payment_form),
                 name='datatrans_payment_refund',
