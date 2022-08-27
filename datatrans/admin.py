@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404, render
 from django.urls import re_path, reverse
 from django.utils.html import format_html
 from djmoney.forms import MoneyField
-from moneyed.localization import format_money
+from moneyed.l10n import format_money
 
 from .gateway import pay_with_alias, refund
 from .models import AliasRegistration, Payment, Refund
